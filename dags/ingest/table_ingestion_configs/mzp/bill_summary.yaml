@@ -1,0 +1,70 @@
+database_source: mzp
+dataset_name: mzp
+table_name: bill_summary
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/bill_summary/source/{{{{ ds }}}}
+
+query: >-
+  select
+      bill_summary_ky
+      ,membership_ky
+      ,process_dt
+      ,notice_nr
+      ,print_dt
+      ,bill_at
+      ,donor_nr
+      ,credit_at
+      ,balance_at
+      ,reprint_req_fl
+      ,bill_type
+      ,last_upd_dt
+      ,expiration_dt
+      ,dues_adjust_at
+      ,payment_at
+      ,mail_dt
+      ,renew_method_cd
+      ,cc_type_cd
+      ,cc_expiration_dt
+      ,bill_panel
+      ,billing_split_cd
+      ,cc_last_four
+      ,ebill_fl
+      ,ebill_email
+      ,SYSDATE as adw_lake_insert_datetime
+      ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_bill_summary
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.bill_summary` (
+   BILL_SUMMARY_KY                 STRING,
+   MEMBERSHIP_KY                   STRING,
+   PROCESS_DT                      STRING,
+   NOTICE_NR                       STRING,
+   PRINT_DT                        STRING,
+   BILL_AT                         STRING,
+   DONOR_NR                        STRING,
+   CREDIT_AT                       STRING,
+   BALANCE_AT                      STRING,
+   REPRINT_REQ_FL                  STRING,
+   BILL_TYPE                       STRING,
+   LAST_UPD_DT                     STRING,
+   EXPIRATION_DT                   STRING,
+   DUES_ADJUST_AT                  STRING,
+   PAYMENT_AT                      STRING,
+   MAIL_DT                         STRING,
+   RENEW_METHOD_CD                 STRING,
+   CC_TYPE_CD                      STRING,
+   CC_EXPIRATION_DT                STRING,
+   BILL_PANEL                      STRING,
+   BILLING_SPLIT_CD                STRING,
+   CC_LAST_FOUR                    STRING,
+   EBILL_FL                        STRING,
+   EBILL_EMAIL                     STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64)
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;
+

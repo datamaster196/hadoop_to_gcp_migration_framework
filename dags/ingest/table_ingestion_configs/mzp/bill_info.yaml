@@ -1,0 +1,72 @@
+database_source: mzp
+dataset_name: mzp
+table_name: bill_info
+hwm_column: last_upd_dt
+split_by_column : to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/bill_info/source/{{{{ ds }}}}
+
+query: >-
+  select
+     membership_ky
+     ,bill_to_address_line1
+     ,bill_to_address_line2
+     ,bill_to_city
+     ,bill_to_state
+     ,bill_to_zip
+     ,bill_to_country
+     ,bill_to_begin_dt
+     ,bill_to_end_dt
+     ,temp_address_line1
+     ,temp_address_line2
+     ,temp_city
+     ,temp_state
+     ,temp_zip
+     ,temp_country
+     ,temp_begin_dt
+     ,temp_end_dt
+     ,last_upd_dt
+     ,bill_to_attention_line
+     ,temp_attention_line
+     ,temp_seasonal_fl
+     ,bill_to_delivery_route
+     ,temp_delivery_route
+     ,bill_address_validation_code
+     ,temp_address_validation_code
+      ,SYSDATE as adw_lake_insert_datetime
+      ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_bill_info
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.bill_info` (
+   membership_ky                   STRING,
+   bill_to_address_line1           STRING,
+   bill_to_address_line2           STRING,
+   bill_to_city                    STRING,
+   bill_to_state                   STRING,
+   bill_to_zip                     STRING,
+   bill_to_country                 STRING,
+   bill_to_begin_dt                STRING,
+   bill_to_end_dt                  STRING,
+   temp_address_line1              STRING,
+   temp_address_line2              STRING,
+   temp_city                       STRING,
+   temp_state                      STRING,
+   temp_zip                        STRING,
+   temp_country                    STRING,
+   temp_begin_dt                   STRING,
+   temp_end_dt                     STRING,
+   last_upd_dt                     STRING,
+   bill_to_attention_line          STRING,
+   temp_attention_line             STRING,
+   temp_seasonal_fl                STRING,
+   bill_to_delivery_route          STRING,
+   temp_delivery_route             STRING,
+   bill_address_validation_code    STRING,
+   temp_address_validation_code    STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64)
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;
+  

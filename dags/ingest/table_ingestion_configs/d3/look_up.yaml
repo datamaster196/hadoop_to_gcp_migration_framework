@@ -1,0 +1,35 @@
+database_source: d3
+dataset_name: d3
+table_name: look_up
+hwm_column: 
+split_by_column: 
+num_mappers: 1
+target_dir: gs://adw-lake-d3-{ENV}/look_up/source/{{{{ ds }}}}
+
+query: >-
+  SELECT
+    TABLE_NM,
+    LOOK_U_CD,
+    REPLACE(REPLACE(REPLACE(LOOK_U_DESC, CHR(10)), CHR(13)), CHR(124)) AS LOOK_U_DESC,
+    CODE_ORDER,
+    CODE_TYPE,
+    COMMENT_REQ,
+    SYSDATE as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  FROM
+    ACA_CAD.LOOK_UP 
+  WHERE
+    $CONDITIONS
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.d3.look_up`(
+        TABLE_NM                     String,
+        LOOK_U_CD                    String,
+        LOOK_U_DESC                  String,
+        CODE_ORDER                   String,
+        CODE_TYPE                    String,
+        COMMENT_REQ                  String,
+        adw_lake_insert_datetime     datetime ,
+        adw_lake_insert_batch_number int64 
+    )
+    PARTITION BY DATE(_PARTITIONTIME)
+    ;

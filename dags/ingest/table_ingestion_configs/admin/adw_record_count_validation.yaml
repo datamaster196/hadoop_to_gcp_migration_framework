@@ -1,0 +1,13 @@
+dataset_name: admin
+table_name: adw_record_count_validation
+
+ddl: >-
+  create table if not exists `{INGESTION_PROJECT}.admin.adw_record_count_validation` (
+  data_layer STRING,
+  source_system STRING,
+  table_name STRING,
+  count_type STRING,
+  record_count INT64,
+  adw_insert_datetime DATETIME,
+  adw_insert_batch_number INT64
+  )

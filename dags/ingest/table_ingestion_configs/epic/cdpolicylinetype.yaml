@@ -1,0 +1,59 @@
+database_source: epic
+dataset_name: epic
+table_name: cdpolicylinetype
+hwm_column: 
+split_by_column: uniqcdpolicylinetype
+num_mappers: 6
+target_dir: gs://adw-lake-epic-{ENV}/cdpolicylinetype/source/{{{{ ds }}}}
+
+query: >-
+  select
+  uniqcdpolicylinetype                                 ,
+  cdpolicylinetypecode                                  ,
+  typeofbusinesscode                                    ,
+  termdefaultcode                                       ,
+  uniqformcategory                                     ,
+  uniqdepartment                                       ,
+  uniqprofitcenter                                     ,
+  flags                                                ,
+  uniqcdpolicytypeclassification                       ,
+  standardsbodycode                                     ,
+  configurelklanguageresourceid                        ,
+  ratinglinedefinitionid                               ,
+  ratinglinedefinitionconfigurelklanguageresourceid    ,
+  taxoption                                             ,
+  renewalmanagerdaystoexpiration                       ,
+  lossnoticecode                                        ,
+  uniqlkclaimtype                                      ,
+  cdpolicylinetypeid                                   ,
+  CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+  {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.cdpolicylinetype
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.cdpolicylinetype`
+  (
+    uniqcdpolicylinetype                                 string,
+    cdpolicylinetypecode                                 string ,
+    typeofbusinesscode                                   string ,
+    termdefaultcode                                      string ,
+    uniqformcategory                                     string,
+    uniqdepartment                                       string,
+    uniqprofitcenter                                     string,
+    flags                                                string,
+    uniqcdpolicytypeclassification                       string,
+    standardsbodycode                                    string ,
+    configurelklanguageresourceid                        string,
+    ratinglinedefinitionid                               string,
+    ratinglinedefinitionconfigurelklanguageresourceid    string,
+    taxoption                                            string ,
+    renewalmanagerdaystoexpiration                       string,
+    lossnoticecode                                       string ,
+    uniqlkclaimtype                                      string,
+    cdpolicylinetypeid                                   string,
+    adw_lake_insert_datetime                             datetime    ,
+    adw_lake_insert_batch_number                         int64 
+  )
+  PARTITION BY DATE(_PARTITIONTIME);

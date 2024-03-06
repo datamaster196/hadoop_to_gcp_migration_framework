@@ -1,0 +1,30 @@
+database_source: eds
+dataset_name: mzp
+table_name: membership_balance
+hwm_column:
+split_by_column: membership_ky
+num_mappers: 9
+target_dir: gs://adw-lake-eds-mbrsbalance-{ENV}/mbrsbalance_hist/source/{{{{ ds }}}}
+
+
+query: >-
+  select
+  membership_ky
+  ,balance_at as amount_due
+  ,CURRENT_TIMESTAMP as last_upd_dt
+  ,CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from edw_extract.dbo.mzp_membership_balance
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.membership_balance` (
+    membership_ky			        STRING,
+    amount_due				    	STRING,
+    last_upd_dt				        STRING,
+    adw_lake_insert_datetime        DATETIME,
+    adw_lake_insert_batch_number    INT64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

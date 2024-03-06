@@ -1,0 +1,35 @@
+database_source: mzp
+dataset_name: mzp
+table_name: membershipcode_audit
+hwm_column: msca_audit_dt
+split_by_column:
+num_mappers: 1
+target_dir: gs://adw-lake-mzp-{ENV}/membershipcode_audit/source/{{{{ ds }}}}
+
+query: >-
+  select
+        msca_audit_key
+        ,msca_audit_dt
+        ,membership_ky
+        ,code
+        ,user_id
+        ,last_upd_dt
+        ,SYSDATE as adw_lake_insert_datetime
+        ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_membershipcode_audit
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.membershipcode_audit` (
+        msca_audit_key                  STRING,
+        msca_audit_dt                   STRING,
+        membership_ky                   STRING,
+        code                            STRING,
+        user_id                         STRING,
+        last_upd_dt                     STRING,
+        adw_lake_insert_datetime        DATETIME,
+        adw_lake_insert_batch_number    INT64)
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;
+
+

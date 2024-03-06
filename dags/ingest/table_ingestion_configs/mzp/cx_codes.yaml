@@ -1,0 +1,45 @@
+database_source: mzp
+dataset_name: mzp
+table_name: cx_codes
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/cx_codes/source/{{{{ ds }}}}
+
+query: >-
+  select
+  code_ky
+  , code_type
+  , code
+  , REPLACE(REPLACE(code_desc, CHR(13)), CHR(10)) as code_desc
+  , display_fl
+  , sort_nr
+  , last_upd_dt
+  , system_required_fl
+  , permission_set
+  , available_on_web_fl
+  , tier_ky
+  , SYSDATE as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.cx_codes
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.cx_codes` (
+  CODE_KY                         STRING,
+   CODE_TYPE                       STRING,
+   CODE                            STRING,
+   CODE_DESC                       STRING,
+   DISPLAY_FL                      STRING,
+   SORT_NR                         STRING,
+   LAST_UPD_DT                     STRING,
+   SYSTEM_REQUIRED_FL              STRING,
+   PERMISSION_SET                  STRING,
+   AVAILABLE_ON_WEB_FL             STRING,
+   TIER_KY                         STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64
+  )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

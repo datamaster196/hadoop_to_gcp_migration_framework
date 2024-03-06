@@ -1,0 +1,28 @@
+CREATE TABLE IF NOT EXISTS `{{ var.value.INTEGRATION_PROJECT }}.adw.dim_product`(
+    product_adw_key                  String      NOT NULL,
+    product_category_adw_key         String      NOT NULL,
+    vendor_adw_key                   String      NOT NULL,
+    product_sku                      String      NOT NULL,
+    product_sku_key                  String      ,
+    product_sku_desc                 String     ,
+    product_sku_effective_dt         date              ,
+    product_sku_expiration_dt        date              ,
+    product_item_nbr_cd              String      ,
+    product_item_desc                String     ,
+    product_vendor_nm                String     ,
+    product_service_category_cd      String      ,
+    product_status_cd                String      ,
+    product_dynamic_sku              String      ,
+    product_dynamic_sku_desc         String     ,
+    product_dynamic_sku_key          String      ,
+    product_unit_cost                Numeric   ,
+    effective_start_datetime         datetime          NOT NULL,
+    effective_end_datetime           datetime          NOT NULL,
+    actv_ind                         String          NOT NULL,
+    adw_row_hash                     String         NOT NULL,
+    integrate_insert_datetime        datetime          NOT NULL,
+    integrate_insert_batch_number    int64               NOT NULL,
+    integrate_update_datetime        datetime          NOT NULL,
+    integrate_update_batch_number    int64               NOT NULL
+)
+ ;

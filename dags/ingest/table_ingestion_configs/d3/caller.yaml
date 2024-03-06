@@ -1,0 +1,87 @@
+database_source: d3
+dataset_name: d3
+table_name: caller
+hwm_column: sc_dt
+split_by_column: to_number(to_char(sc_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-d3-{ENV}/caller/source/{{{{ ds }}}}
+
+query: >-
+  SELECT
+    COMM_CTR_ID,
+    SC_DT,
+    SC_ID,
+    CALR_MBR_CLB_CD,
+    REPLACE(REPLACE(REPLACE(MBR_ID, CHR(10)), CHR(13)), CHR(124)) AS MBR_ID,
+    REPLACE(REPLACE(REPLACE(ASSOC_MBR_ID, CHR(10)), CHR(13)), CHR(124)) AS ASSOC_MBR_ID,
+    CALR_FST_NM,
+    CALR_LST_NM,
+    CALR_SUFFIX,
+    TEL_NR_EXT,
+    CALR_BSC_AD,
+    CALR_SUPL_AD,
+    CALR_CTY_NM,
+    CALR_ST_CD,
+    CALR_ZIP_CD,
+    CALR_PLUS_IND,
+    CALR_AAA_YR_JOINED,
+    CALR_MBR_EXPIR_DT,
+    CLR_MBR_ENT_CT,
+    CLR_MBR_YTD_CT,
+    CALR_STS_CD,
+    INQ_FLG,
+    CALR_STAT_IND,
+    CALR_MBR_CANCL_DT,
+    CALR_RIDERS,
+    CALR_TYP_CD,
+    SALUTATION,
+    MBR_ADDR_CHANGED,
+    MBR_SCORE,
+    DEVICE_ID,
+    DEVICE_MODEL_ID,
+    DEVICE_TYPE_ID,
+    SYSDATE as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  FROM
+    aca_ers_hist.caller
+  WHERE
+    $CONDITIONS
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.d3.caller`(
+            comm_ctr_id           STRING,
+            sc_dt                 STRING,
+            sc_id                 STRING,
+            calr_mbr_clb_cd       STRING,
+            mbr_id                STRING,
+            assoc_mbr_id          STRING,
+            calr_fst_nm           STRING,
+            calr_lst_nm           STRING,
+            calr_suffix           STRING,
+            tel_nr_ext            STRING,
+            calr_bsc_ad           STRING,
+            calr_supl_ad          STRING,
+            calr_cty_nm           STRING,
+            calr_st_cd            STRING,
+            calr_zip_cd           STRING,
+            calr_plus_ind         STRING,
+            calr_aaa_yr_joined    STRING,
+            calr_mbr_expir_dt     STRING,
+            clr_mbr_ent_ct        STRING,
+            clr_mbr_ytd_ct        STRING,
+            calr_sts_cd           STRING,
+            inq_flg               STRING,
+            calr_stat_ind         STRING,
+            calr_mbr_cancl_dt     STRING,
+            calr_riders           STRING,
+            calr_typ_cd           STRING,
+            salutation            STRING,
+            mbr_addr_changed      STRING,
+            mbr_score             STRING,
+            device_id             STRING,
+            device_model_id       STRING,
+            device_type_id        STRING,
+            adw_lake_insert_datetime             DATETIME,
+            adw_lake_insert_batch_number         INT64
+    )
+    PARTITION BY DATE(_PARTITIONTIME)
+    ;

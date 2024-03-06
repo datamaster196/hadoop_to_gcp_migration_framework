@@ -1,0 +1,56 @@
+database_source: csaa
+dataset_name: csaa
+table_name: csaa_panel
+hwm_column:
+split_by_column:
+num_mappers: 1
+target_dir: gs://adw-lake-eds-csaa-{ENV}/csaa_hist/source/{{{{ ds }}}}
+
+
+query: >-
+  select
+  MRM_ID
+  ,membership_club
+  ,membership_number
+  ,first_name
+  ,middle_name
+  ,last_name
+  ,address_line_1
+  ,address_line_2
+  ,address_line_3
+  ,city
+  ,state
+  ,postal_cd
+  ,us_zip4
+  ,pred_color_grp
+  ,predicted_tier
+  ,SEG2
+  ,CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.eds_csaa_file
+  where active_indic = CHAR(121) and $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.csaa.csaa_panel` (
+    MRM_ID						    STRING,
+    membership_club					STRING,
+    membership_number				STRING,
+    first_name						STRING,
+    middle_name						STRING,
+    last_name					    STRING,
+    address_line_1					STRING,
+    address_line_2				    STRING,
+    address_line_3					STRING,
+    city							STRING,
+    state							STRING,
+    postal_cd						STRING,
+    us_zip4							STRING,
+    pred_color_grp					STRING,
+    predicted_tier					STRING,
+    SEG2							STRING,
+    adw_lake_insert_datetime        DATETIME,
+    adw_lake_insert_batch_number    INT64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

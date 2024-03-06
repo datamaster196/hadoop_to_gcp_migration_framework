@@ -1,0 +1,52 @@
+database_source: pos
+dataset_name: pos
+table_name: cust
+hwm_column: last_update
+split_by_column: last_update
+num_mappers: 6
+target_dir: gs://adw-lake-pos-{ENV}/cust/source/{{{{ ds }}}}
+
+query: >-
+  select
+    assoc_cd  ,
+    clb_cd  ,
+    cust_id  ,
+    cust_fst_nm ,
+    cust_lst_nm ,
+    cust_mid_init_nm ,
+    cust_nm_sufx_id ,
+    cust_sltn_id ,
+    cust_typ_id  ,
+    stamp  ,
+    REPLACE(REPLACE(REPLACE(cust_notes, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as cust_notes,
+    last_update  ,
+    contact_object_id ,
+    dup_of_cust_id ,
+    last_ofc_id ,
+    cust_dob  ,
+    CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+    from [{db_name}].dbo.cust
+    where $CONDITIONS
+
+ddl: >-
+    CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.pos.cust`(
+    assoc_cd String ,
+    clb_cd String ,
+    cust_id String ,
+    cust_fst_nm String,
+    cust_lst_nm String,
+    cust_mid_init_nm String,
+    cust_nm_sufx_id String,
+    cust_sltn_id String,
+    cust_typ_id String ,
+    stamp String ,
+    cust_notes String,
+    last_update String ,
+    contact_object_id String,
+    dup_of_cust_id String,
+    last_ofc_id String,
+    cust_dob String ,
+    adw_lake_insert_datetime datetime ,
+    adw_lake_insert_batch_number int64
+    ) PARTITION BY DATE(_PARTITIONTIME);

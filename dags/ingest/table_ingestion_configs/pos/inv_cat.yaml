@@ -1,0 +1,33 @@
+database_source: pos
+dataset_name: pos
+table_name: inv_cat
+hwm_column:
+split_by_column:
+num_mappers: 1
+target_dir: gs://adw-lake-pos-{ENV}/inv_cat/source/{{{{ ds }}}}
+
+query: >-
+  select
+    assoc_cd  ,
+    clb_cd  ,
+    inv_cat_cd  ,
+    inv_cat_desc  ,
+    inv_cat_gl_prefix ,
+    status  ,
+    CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.inv_cat
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.pos.inv_cat`(
+    assoc_cd String ,
+    clb_cd String ,
+    inv_cat_cd String ,
+    inv_cat_desc String ,
+    inv_cat_gl_prefix String,
+    status String ,
+    adw_lake_insert_datetime datetime ,
+    adw_lake_insert_batch_number int64
+    ) PARTITION BY DATE(_PARTITIONTIME);

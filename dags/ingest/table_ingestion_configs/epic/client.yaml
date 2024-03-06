@@ -1,0 +1,93 @@
+database_source: epic
+dataset_name: epic
+table_name: client
+hwm_column: updateddate
+split_by_column: updateddate
+num_mappers: 6
+target_dir: gs://adw-lake-epic-{ENV}/client/source/{{{{ ds }}}}
+
+query: >-
+  select * from (
+  select
+  uniqentity
+  , lookupcode
+  , nameof
+  , typecode
+  , uniqcontactnameprimary
+  , uniqcontactaddressaccount
+  , uniqcontactnumberaccount
+  , uniqcontactnamebusiness
+  , uniqcontactnumberfaxaccount
+  , uniqcontactnumberwebaccount
+  , uniqreportinstanceinvoicelayout
+  , uniqreportinstancestatementlayout
+  , cdcountrycode
+  , cdcurrencycode
+  , REPLACE(REPLACE(REPLACE(comments, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as comments
+  , importmatchid
+  , uniqbroker
+  , conversiondate
+  , conversionprioraccountid
+  , statementpagebreakcode
+  , invoicepagebreakcode
+  , inactivedate
+  , inactivereason
+  , expirationdate
+  , insertedbycode
+  , inserteddate
+  , updatedbycode
+  , coalesce(updateddate,ts,inserteddate) as updateddate
+  , flags
+  , ts
+  , inactivatedbycode
+  , clientid
+  , uniqcdaccountsource
+  , uniqcontactnumberemailaccount
+  , CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.client) a
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.client` (
+      uniqentity                           STRING,
+      lookupcode                           STRING,
+      nameof                               STRING,
+      typecode                             STRING,
+      uniqcontactnameprimary               STRING,
+      uniqcontactaddressaccount            STRING,
+      uniqcontactnumberaccount             STRING,
+      uniqcontactnamebusiness              STRING,
+      uniqcontactnumberfaxaccount          STRING,
+      uniqcontactnumberwebaccount          STRING,
+      uniqreportinstanceinvoicelayout      STRING,
+      uniqreportinstancestatementlayout    STRING,
+      cdcountrycode                        STRING,
+      cdcurrencycode                       STRING,
+      comments                             STRING,
+      importmatchid                        STRING,
+      uniqbroker                           STRING,
+      conversiondate                       STRING,
+      conversionprioraccountid             STRING,
+      statementpagebreakcode               STRING,
+      invoicepagebreakcode                 STRING,
+      inactivedate                         STRING,
+      inactivereason                       STRING,
+      expirationdate                       STRING,
+      insertedbycode                       STRING,
+      inserteddate                         STRING,
+      updatedbycode                        STRING,
+      updateddate                          STRING,
+      flags                                STRING,
+      ts                                   STRING,
+      inactivatedbycode                    STRING,
+      clientid                             STRING,
+      uniqcdaccountsource                  STRING,
+      uniqcontactnumberemailaccount        STRING,
+      adw_lake_insert_datetime             DATETIME,
+      adw_lake_insert_batch_number         INT64
+
+      )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

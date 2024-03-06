@@ -1,0 +1,115 @@
+database_source: ersbilling
+dataset_name: ersbilling
+table_name: member_billing
+hwm_column:
+split_by_column: 
+num_mappers: 1
+target_dir: gs://adw-lake-ersbilling-{ENV}/member_billing/source/{{{{ ds }}}}
+
+
+query: >-
+  SELECT        comm_ctr_id
+               ,arch_date
+               ,sc_dt
+               ,sc_id
+               ,PrimeKey
+               ,reference_no
+               ,sc_call_clb_cd
+               ,sc_call_mbr_id
+               ,sc_call_asc_id
+               ,primary_mbr
+               ,sc_cntc_fst_nm
+               ,sc_cntc_lst_nm
+               ,sc_rcvd_tm
+               ,sc_policy
+               ,svc_facl_id
+               ,svc_facl_nm
+               ,prob1_cd
+               ,plus
+               ,Bill_Amount
+               ,sc_veh_manf_yr_dt
+               ,sc_veh_manfr_nm
+               ,sc_veh_mdl_nm
+               ,bl_near_cty_nm
+               ,bl_state_cd
+               ,address1
+               ,address2
+               ,city
+               ,state
+               ,zip1
+               ,corrected_bill_amount
+               ,bill_member
+               ,pay_date
+               ,paid_amount
+               ,good_will
+               ,bill_date
+               ,REPLACE(REPLACE(REPLACE(comments, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as comments
+               ,mbr_jn_aaa_yr
+               ,payment_Type
+               ,returned_Check
+               ,waived_amount
+               ,reason_waived
+               ,recip_billing
+               ,call_count
+               ,[group] as grp
+               ,payment_Source
+               ,branch
+               ,CURRENT_TIMESTAMP AS adw_lake_insert_datetime
+               ,{{{{ dag_run.id }}}}    AS adw_lake_insert_batch_number
+  FROM   [{db_name}].dbo.eds_ers_member_billing
+  WHERE  active_indic = CHAR(89) AND $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.ersbilling.member_billing` (
+        comm_ctr_id			          STRING ,
+     	arch_date				      STRING ,
+     	sc_dt					      STRING ,
+     	sc_id					      STRING ,
+     	primekey				      STRING ,
+     	reference_no				  STRING ,
+     	sc_call_clb_cd				  STRING ,
+     	sc_call_mbr_id				  STRING ,
+     	sc_call_asc_id				  STRING ,
+     	primary_mbr				      STRING ,
+     	sc_cntc_fst_nm				  STRING ,
+     	sc_cntc_lst_nm				  STRING ,
+     	sc_rcvd_tm				      STRING ,
+     	sc_policy				      STRING,
+     	svc_facl_id				      STRING ,
+     	svc_facl_nm				      STRING ,
+     	prob1_cd				      STRING ,
+     	plus					      STRING ,
+     	bill_amount				      STRING ,
+     	sc_veh_manf_yr_dt			  STRING ,
+     	sc_veh_manfr_nm				  STRING ,
+     	sc_veh_mdl_nm				  STRING ,
+     	bl_near_cty_nm				  STRING ,
+     	bl_state_cd				      STRING ,
+     	address1				      STRING ,
+     	address2				      STRING ,
+     	city					      STRING ,
+     	state					      STRING ,
+     	zip1					      STRING ,
+     	corrected_bill_amount		  STRING ,
+     	bill_member				      STRING ,
+     	pay_date				      STRING ,
+     	paid_amount				      STRING ,
+     	good_will				      STRING ,
+     	bill_date				      STRING ,
+     	comments				      STRING ,
+     	mbr_jn_aaa_yr				  STRING ,
+     	payment_type				  STRING ,
+     	returned_check				  STRING ,
+     	waived_amount				  STRING ,
+     	reason_waived				  STRING ,
+     	recip_billing				  STRING ,
+     	call_count				      STRING ,
+     	grp  					      STRING ,
+     	payment_source				  STRING ,
+     	branch					      STRING ,
+     	adw_lake_insert_datetime      DATETIME,
+        adw_lake_insert_batch_number  INT64
+  )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

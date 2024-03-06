@@ -1,0 +1,60 @@
+database_source: mzp
+dataset_name: admin
+table_name: adw_record_count_validation
+hwm_column: cast(adw_insert_datetime as string)
+num_mappers: 1
+target_dir: gs://adw-lake-mzp-{ENV}/adw_table_count_validation/source/{{{{ ds }}}}
+
+query: >-
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'CX_CODES'"'"','"'"'table_level_count'"'"', count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.cx_codes union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'CX_CODE_TYPE'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.cx_code_type union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'CX_IUSERS'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.cx_iusers union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_AUTORENEWAL_CARD'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_autorenewal_card union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_BATCH_HEADER'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_batch_header union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_BATCH_PAYMENT'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_batch_payment union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_BILL_DETAIL'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_bill_detail union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_BILL_SUMMARY'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_bill_summary union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_BRANCH'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_branch union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_CLUB'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_club union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_DAILY_COUNTS_SUMMARY'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_daily_counts_summary union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_DISCOUNT_HISTORY'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_discount_history union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_DIVISION'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_division union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_GL_ACCOUNT'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_gl_account union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_JOURNAL_ENTRY'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_journal_entry union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_MEMBER'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_member union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_MEMBERSHIP'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_membership union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_MEMBERSHIP_CODE'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_membership_code union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_MEMBERSHIP_COMMENT'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_membership_comment union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_MEMBERSHIP_CROSSREF'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_membership_crossref union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_MEMBER_CODE'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_member_code union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_MEMBER_CROSSREF'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_member_crossref union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_MEMBERSHIP_FEES'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_membership_fees union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_PAYMENT_DETAIL'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_payment_detail union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_PAYMENT_PLAN'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_payment_plan union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_PAYMENT_SUMMARY'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_payment_summary union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_RENEWAL_METHOD_AUDIT'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_renewal_method_audit union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_RETENTION'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_retention union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_RETENTION_OPTION'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_retention_option union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_RIDER'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_rider union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_SALES_AGENT'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_sales_agent union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_SALES_AGENT_ACTIVITY'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_sales_agent_activity union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_SEGMENTATION_HISTORY'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_segmentation_history union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_SEGMENTATION_SETUP'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_segmentation_setup union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_SOLICITATION'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_solicitation union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_SOLICITATION_DISCOUNT'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_solicitation_discount union
+  Select '"'"'source'"'"','"'"'mzp'"'"','"'"'MZ_TERRITORY'"'"', '"'"'table_level_count'"'"',count(*), SYSDATE as adw_lake_insert_datetime, {{{{ dag_run.id }}}} as adw_lake_insert_batch_number from mz_plus_212.mz_territory
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.admin.adw_record_count_validation` (
+    data_layer                        STRING,
+    source_system                     STRING,
+    table_name                        STRING,
+    count_type                        STRING,
+    record_count                      INT64,
+    adw_insert_datetime          DATETIME,
+    adw_insert_batch_number      INT64
+      )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

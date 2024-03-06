@@ -1,0 +1,4 @@
+jar_files: gs://adw_admin_db_connections/ingestion_jars/sqoop-1.4.7-hadoop260.jar,gs://adw_admin_db_connections/ingestion_jars/avro-tools-1.8.2.jar,gs://adw_admin_db_connections/ingestion_jars/ojdbc7.jar
+connect: jdbc:oracle:thin:@mzpprod-scan.aaacorp.com:1521/prdmzp.aaamidatlantic.com
+username: GCPREADER
+password_file: gs://adw_admin_db_connections/source_db_account_credentials/mzp/prd/mzp_ro_user_pw.txt

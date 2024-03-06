@@ -1,0 +1,60 @@
+database_source: mzp
+dataset_name: mzp
+table_name: batch_header
+hwm_column: last_upd_dt
+split_by_column:  to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 4
+target_dir: gs://adw-lake-mzp-{ENV}/batch_header/source/{{{{ ds }}}}
+
+query: >-
+   select
+    batch_ky,
+    batch_name,
+    exp_ct,
+    exp_at,
+    user_id,
+    create_dt,
+    post_dt,
+    update_dt,
+    source_cd,
+    post_complete_dt,
+    batch_ready_fl,
+    last_upd_dt,
+    branch_ky,
+    batch_type_cd,
+    transaction_dt,
+    post_ct,
+    status,
+    status_dt,
+    posted_by,
+    SYSDATE as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+    from mz_plus_212.mz_batch_header
+    where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.batch_header` (
+   BATCH_KY                        STRING           NOT NULL,
+   BATCH_NAME                      STRING,
+   EXP_CT                          STRING,
+   EXP_AT                          STRING,
+   USER_ID                         STRING,
+   CREATE_DT                       STRING,
+   POST_DT                         STRING,
+   UPDATE_DT                       STRING,
+   SOURCE_CD                       STRING,
+   POST_COMPLETE_DT                STRING,
+   BATCH_READY_FL                  STRING,
+   LAST_UPD_DT                     STRING,
+   BRANCH_KY                       STRING,
+   BATCH_TYPE_CD                   STRING,
+   TRANSACTION_DT                  STRING,
+   POST_CT                         STRING,
+   STATUS                          STRING,
+   STATUS_DT                       STRING,
+   POSTED_BY                       STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64)
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;
+

@@ -1,0 +1,105 @@
+database_source: epic
+dataset_name: epic
+table_name: company
+hwm_column: updateddate
+split_by_column: updateddate
+num_mappers: 6
+target_dir: gs://adw-lake-epic-{ENV}/company/source/{{{{ ds }}}}
+
+query: >-
+  select * from (
+  select
+      uniqentity                                  ,
+      uniqentitymaster                            ,
+      lookupcode                                   ,
+      nameof                                      ,
+      REPLACE(REPLACE(REPLACE(comments, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as comments,
+      uniqcontactnameprimary                      ,
+      uniqcontactaddressaccount                   ,
+      uniqcontactnumberaccount                    ,
+      uniqcontactnumberfaxaccount                 ,
+      uniqcontactnumberwebaccount                 ,
+      uniqentitybillingcompany                    ,
+      naiccode                                     ,
+      billmodecode                                 ,
+      dbillreconciliationmethodcode                ,
+      batchpaymentmethodcode                       ,
+      uniqglaccountpay                            ,
+      uniqglaccountpaywriteoff                    ,
+      uniqglaccountbinderbill                     ,
+      uniqglaccountabill                          ,
+      uniqglaccountdbill                          ,
+      uniqglaccountdbillrecv                      ,
+      uniqglaccountcashonacct                     ,
+      inactivedate                             ,
+      inactivereason                              ,
+      expirationdate                           ,
+      conversiondate                           ,
+      conversionprioraccountid                 ,
+      insertedbycode                              ,
+      inserteddate                                ,
+      updatedbycode                               ,
+      coalesce(updateddate,ts,inserteddate) as updateddate                              ,
+      flags                                       ,
+      ts                                              ,
+      uniqglaccountdefercompanypayables           ,
+      inactivatedbycode                           ,
+      uniqglaccountpremiumpayablecashonacct       ,
+      cdcountrycode                             ,
+      ibccode                                      ,
+      uniqglaccountbinderpayable                  ,
+      fatcacompliancestatuscode                    ,
+      companyid                                   ,
+      CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+      {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.company) a
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.company`
+  ( uniqentity                               string   ,
+    uniqentitymaster                         string   ,
+    lookupcode                               string    ,
+    nameof                                   string   ,
+    comments                                 string   ,
+    uniqcontactnameprimary                   string   ,
+    uniqcontactaddressaccount                string   ,
+    uniqcontactnumberaccount                 string   ,
+    uniqcontactnumberfaxaccount              string   ,
+    uniqcontactnumberwebaccount              string   ,
+    uniqentitybillingcompany                 string   ,
+    naiccode                                 string    ,
+    billmodecode                             string    ,
+    dbillreconciliationmethodcode            string    ,
+    batchpaymentmethodcode                   string    ,
+    uniqglaccountpay                         string   ,
+    uniqglaccountpaywriteoff                 string   ,
+    uniqglaccountbinderbill                  string   ,
+    uniqglaccountabill                       string   ,
+    uniqglaccountdbill                       string   ,
+    uniqglaccountdbillrecv                   string   ,
+    uniqglaccountcashonacct                  string   ,
+    inactivedate                             string,
+    inactivereason                           string   ,
+    expirationdate                           string,
+    conversiondate                           string,
+    conversionprioraccountid                 string,
+    insertedbycode                           string   ,
+    inserteddate                             string   ,
+    updatedbycode                            string   ,
+    updateddate                              string,
+    flags                                    string   ,
+    ts                                       string       ,
+    uniqglaccountdefercompanypayables        string   ,
+    inactivatedbycode                        string   ,
+    uniqglaccountpremiumpayablecashonacct    string   ,
+    cdcountrycode                            string ,
+    ibccode                                  string    ,
+    uniqglaccountbinderpayable               string   ,
+    fatcacompliancestatuscode                string    ,
+    companyid                                string   ,
+    adw_lake_insert_datetime                 datetime       ,
+    adw_lake_insert_batch_number             int64    
+  )
+  PARTITION BY DATE(_PARTITIONTIME);

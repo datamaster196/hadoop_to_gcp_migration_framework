@@ -1,0 +1,93 @@
+database_source: pos
+dataset_name: pos
+table_name: inv_sku
+hwm_column: last_update
+split_by_column: last_update
+num_mappers: 4
+target_dir: gs://adw-lake-pos-{ENV}/inv_sku/source/{{{{ ds }}}}
+
+query: >-
+    select
+    assoc_cd  ,
+    clb_cd  ,
+    inv_sku_id ,
+    inv_itm_id ,
+    inv_sku  ,
+    status  ,
+    inv_sku_eff_dt  ,
+    inv_sku_exp_dt  ,
+    inv_sku_desc  ,
+    inv_sku_uom ,
+    inv_sku_weight ,
+    inv_sku_shp_cst  ,
+    inv_sku_hndl_cst  ,
+    inv_sku_shp_ct ,
+    member_prc  ,
+    nonmember_prc  ,
+    employee_prc  ,
+    list_prc  ,
+    member_savings_amt  ,
+    unit_cost ,
+    pre_pub_prc  ,
+    after_pub_prc  ,
+    edition_year ,
+    revision_month ,
+    zero_price_ind ,
+    last_update  ,
+    user_data_flag ,
+    user_data_desc ,
+    default_to_cash_adv ,
+    foreign_currency ,
+    promo_override_sku ,
+    travel_money ,
+    warranty ,
+    ofac_comp_req  ,
+    ltv_calc_funct  ,
+    ltv_calc_amount ,
+     CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+    from [{db_name}].dbo.inv_sku
+    where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.pos.inv_sku`(
+    assoc_cd String ,
+    clb_cd String ,
+    inv_sku_id String,
+    inv_itm_id String,
+    inv_sku String ,
+    status String ,
+    inv_sku_eff_dt String ,
+    inv_sku_exp_dt String ,
+    inv_sku_desc String ,
+    inv_sku_uom String,
+    inv_sku_weight String,
+    inv_sku_shp_cst String ,
+    inv_sku_hndl_cst String ,
+    inv_sku_shp_ct String,
+    member_prc String ,
+    nonmember_prc String ,
+    employee_prc String ,
+    list_prc String ,
+    member_savings_amt String ,
+    unit_cost String,
+    pre_pub_prc String ,
+    after_pub_prc String ,
+    edition_year String,
+    revision_month String,
+    zero_price_ind String,
+    last_update String ,
+    user_data_flag String,
+    user_data_desc String,
+    default_to_cash_adv String,
+    foreign_currency String,
+    promo_override_sku String,
+    travel_money String,
+    warranty String,
+    ofac_comp_req String ,
+    ltv_calc_funct String ,
+    ltv_calc_amount String,
+    adw_lake_insert_datetime datetime ,
+    adw_lake_insert_batch_number int64
+    ) PARTITION BY DATE(_PARTITIONTIME);

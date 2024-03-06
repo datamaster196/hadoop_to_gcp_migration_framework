@@ -1,0 +1,32 @@
+CREATE TABLE IF NOT EXISTS `{{ var.value.INTEGRATION_PROJECT }}.adw.dim_demo_person`(
+     demo_person_adw_key               String   NOT NULL,
+    contact_adw_key                   String   ,
+    demo_exact_age                    String    ,
+    demo_estimated_age                String    ,
+    demo_hsd_estimated_income         String    ,
+    demo_dwelling_typ                 String    ,
+    demo_gender                       String    ,
+    demo_marital_status               String    ,
+    demo_birth_dt                     date        ,
+    demo_home_ownership_cd            String    ,
+    demo_income_range_cd              String    ,
+    demo_length_of_residence          int64         ,
+    demo_presence_of_children         String    ,
+    demo_age_group_cd                 String    ,
+    demo_biz_owner                    String    ,
+    demo_education_level              String    ,
+    demo_occptn_cd                    String    ,
+    demo_occptn_group                 String    ,
+    demo_ethnic_detail_cd             String    ,
+    demo_ethnic_religion_cd           String    ,
+    demo_ethnic_language_pref         String    ,
+    demo_ethnic_grouping_cd           String    ,
+    demo_ethnic_cntry_of_origin_cd    String    ,
+    demo_lexid                        String   ,
+    actv_ind                          String    NOT NULL,
+    integrate_snapshot_dt             date        NOT NULL,
+    integrate_insert_datetime         datetime    NOT NULL,
+    integrate_insert_batch_number     int64         NOT NULL
+)
+  PARTITION BY (integrate_snapshot_dt)
+CLUSTER BY actv_ind 

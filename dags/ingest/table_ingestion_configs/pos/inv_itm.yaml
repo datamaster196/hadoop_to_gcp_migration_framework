@@ -1,0 +1,65 @@
+database_source: pos
+dataset_name: pos
+table_name: inv_itm
+hwm_column:
+split_by_column:
+num_mappers: 4
+target_dir: gs://adw-lake-pos-{ENV}/inv_item/source/{{{{ ds }}}}
+
+query: >-
+ select
+    assoc_cd  ,
+    clb_cd  ,
+    inv_itm_id ,
+    inv_cat_cd  ,
+    inv_itm_nr  ,
+    inv_itm_desc  ,
+    inv_itm_uom ,
+    inv_itm_eff_dt  ,
+    inv_itm_exp_dt  ,
+    inv_itm_typ  ,
+    inv_itm_gl_purch ,
+    inv_itm_gl_sales ,
+    inv_itm_taxable  ,
+    inv_itm_status  ,
+    inv_itm_weight ,
+    inv_itm_size ,
+    inv_itm_returnable  ,
+    inv_itm_bmp ,
+    last_update  ,
+    promo_override_itm ,
+    inv_itm_sys  ,
+    acct_cat_cd ,
+    CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.inv_itm
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.pos.inv_itm`(
+    assoc_cd String ,
+    clb_cd String ,
+    inv_itm_id String,
+    inv_cat_cd String ,
+    inv_itm_nr String ,
+    inv_itm_desc String ,
+    inv_itm_uom String,
+    inv_itm_eff_dt String ,
+    inv_itm_exp_dt String ,
+    inv_itm_typ String ,
+    inv_itm_gl_purch String,
+    inv_itm_gl_sales String,
+    inv_itm_taxable String ,
+    inv_itm_status String ,
+    inv_itm_weight String,
+    inv_itm_size String,
+    inv_itm_returnable String ,
+    inv_itm_bmp String,
+    last_update String ,
+    promo_override_itm String,
+    inv_itm_sys String ,
+    acct_cat_cd String,
+    adw_lake_insert_datetime datetime ,
+    adw_lake_insert_batch_number int64
+    ) PARTITION BY DATE(_PARTITIONTIME);

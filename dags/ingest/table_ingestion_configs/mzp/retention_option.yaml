@@ -1,0 +1,38 @@
+database_source: mzp
+dataset_name: mzp
+table_name: retention_option
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 4
+target_dir: gs://adw-lake-mzp-{ENV}/retention_option/source/{{{{ ds }}}}
+
+query: >-
+   select
+    option_ky,
+    retention_ky,
+    incentive_ky,
+    option_cd,
+    option_tp,
+    incentive_amt,
+    accept_fl,
+    last_upd_dt,
+    SYSDATE as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+    from mz_plus_212.mz_retention_option 
+    where $CONDITIONS
+  
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.retention_option` (
+   OPTION_KY                       STRING          NOT NULL,
+   RETENTION_KY                    STRING,
+   INCENTIVE_KY                    STRING,
+   OPTION_CD                       STRING,
+   OPTION_TP                       STRING,
+   INCENTIVE_AMT                   STRING,
+   ACCEPT_FL                       STRING,
+   LAST_UPD_DT                     STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64)
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;
+

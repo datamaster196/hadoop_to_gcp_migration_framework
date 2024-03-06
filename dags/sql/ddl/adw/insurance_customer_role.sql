@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS `{{ var.value.INTEGRATION_PROJECT }}.adw.insurance_customer_role`(
+    contact_adw_key                  String     NOT NULL,
+    ins_policy_adw_key               String     NOT NULL,
+    ins_rel_type                     String     NOT NULL,
+    drvr_ins_number                  String   ,
+    drvr_ins_birth_dt                datetime        ,
+    drvr_ins_good_student_cd         String   ,
+    drvr_ins_good_student_desc       String   ,
+    drvr_ins_marital_status_cd       String    ,
+    drvr_ins_marital_status_desc     String   ,
+    drvr_license_state               String   ,
+    effective_start_datetime         datetime   NOT NULL,
+    effective_end_datetime           datetime   NOT NULL,
+    rel_effective_start_datetime     datetime    NOT NULL,
+    rel_effective_end_datetime       datetime    NOT NULL,
+    actv_ind                         String     NOT NULL,
+    adw_row_hash                     String     NOT NULL,
+    integrate_insert_datetime        datetime   NOT NULL,
+    integrate_insert_batch_number    int64      NOT NULL,
+    integrate_update_datetime        datetime   NOT NULL,
+    integrate_update_batch_number    int64      NOT NULL
+) ;

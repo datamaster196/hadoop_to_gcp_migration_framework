@@ -1,0 +1,26 @@
+CREATE TABLE adw.dim_vendor
+  ( 
+     vendor_adw_key                STRING NOT NULL, 
+     business_line_adw_key         STRING NOT NULL, 
+     address_adw_key               STRING NOT NULL, 
+     email_adw_key                 STRING NOT NULL, 
+     vendor_code                   STRING, 
+     vendor_name                   STRING, 
+     vendor_type                   STRING, 
+     internal_facility_code        INT64, 
+     vendor_contact                STRING, 
+     preferred_vendor              STRING, 
+     vendor_status                 STRING, 
+     service_region                STRING, 
+     service_region_description    STRING, 
+     fleet_indicator               STRING, 
+     aaa_facility                  STRING, 
+     effective_start_datetime      DATETIME NOT NULL, 
+     effective_end_datetime        DATETIME NOT NULL, 
+     active_indicator              STRING NOT NULL, 
+     adw_row_hash                  STRING NOT NULL, 
+     integrate_insert_datetime     DATETIME NOT NULL, 
+     integrate_insert_batch_number INT64 NOT NULL, 
+     integrate_update_datetime     DATETIME NOT NULL, 
+     integrate_update_batch_number INT64 NOT NULL 
+  );

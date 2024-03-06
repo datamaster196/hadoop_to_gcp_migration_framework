@@ -1,0 +1,31 @@
+database_source: mzp
+dataset_name: mzp
+table_name: cx_code_type
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 1
+target_dir: gs://adw-lake-mzp-{ENV}/cx_code_type/source/{{{{ ds }}}}
+
+query: >-
+  select
+  code_type
+  ,code_type_desc
+  ,comments
+  ,last_upd_dt
+  , SYSDATE as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.cx_code_type
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.cx_code_type` (
+  CODE_TYPE                       STRING,
+   CODE_TYPE_DESC                  STRING,
+   COMMENTS                        STRING,
+   LAST_UPD_DT                     STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64
+  )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;
+

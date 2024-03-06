@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS `{{ var.value.INTEGRATION_PROJECT }}.adw.membership_billing_detail`(
+    mbrs_billing_detail_adw_key      String     NOT NULL,
+    mbrs_billing_summary_adw_key     String     NOT NULL,
+    posted_user_adw_key              String     ,
+    mbr_adw_key                      String     NOT NULL,
+    product_adw_key                  String     NOT NULL,
+    bill_detail_source_key           int64              ,
+    bill_summary_source_key          int64              ,
+    bill_process_dt                  date             ,
+    bill_notice_nbr                  int64              ,
+    bill_typ                         String      ,
+    bill_detail_amt                  Numeric   ,
+    bill_detail_text                 String     ,
+    rider_billing_category_cd        String      ,
+    rider_billing_category_desc      String     ,
+    rider_solicit_cd                 String     ,
+    effective_start_datetime         datetime         NOT NULL,
+    effective_end_datetime           datetime         NOT NULL,
+    actv_ind                         String         NOT NULL,
+    adw_row_hash                     String        NOT NULL,
+    integrate_insert_datetime        datetime         NOT NULL,
+    integrate_insert_batch_number    int64              NOT NULL,
+    integrate_update_datetime        datetime         NOT NULL,
+    integrate_update_batch_number    int64              NOT NULL
+)
+ ;

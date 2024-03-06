@@ -1,0 +1,47 @@
+database_source: mzp
+dataset_name: mzp
+table_name: membership_comment
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 4
+target_dir: gs://adw-lake-mzp-{ENV}/membership_comment/source/{{{{ ds }}}}
+
+query: >-
+  select
+        MEMBERSHIP_COMMENT_KY
+        ,MEMBERSHIP_KY
+        ,CREATE_DT
+        ,CREATE_USER_ID
+        ,COMMENT_TYPE_CD
+        ,REPLACE(REPLACE(REPLACE(comments, CHR(10)), CHR(13)), CHR(124)) AS comments
+        ,ASSIGN_USER_ID
+        ,RESOLVED_DT
+        ,RESOLVED_USER_ID
+        ,REPLACE(REPLACE(REPLACE(resolution, CHR(10)), CHR(13)), CHR(124)) AS resolution
+        ,LAST_UPD_DT
+        ,ASSIGN_DEPT_CD
+        ,NULL AS provider_hr_key
+        ,SYSDATE as adw_lake_insert_datetime
+        ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_membership_comment
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.membership_comment` (
+   MEMBERSHIP_COMMENT_KY           STRING,
+   MEMBERSHIP_KY                   STRING,
+   CREATE_DT                       STRING,
+   CREATE_USER_ID                  STRING,
+   COMMENT_TYPE_CD                 STRING,
+   COMMENTS                        STRING,
+   ASSIGN_USER_ID                  STRING,
+   RESOLVED_DT                     STRING,
+   RESOLVED_USER_ID                STRING,
+   RESOLUTION                      STRING,
+   LAST_UPD_DT                     STRING,
+   ASSIGN_DEPT_CD                  STRING,
+   provider_hr_key                 STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64)
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

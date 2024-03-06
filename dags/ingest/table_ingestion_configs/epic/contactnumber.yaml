@@ -1,0 +1,56 @@
+database_source: epic
+dataset_name: epic
+table_name: contactnumber
+hwm_column: updateddate
+split_by_column: updateddate
+num_mappers: 6
+target_dir: gs://adw-lake-epic-{ENV}/contactnumber/source/{{{{ ds }}}}
+
+query: >-
+  select
+  uniqcontactnumber
+  ,UniqFixedContactNumber
+  ,UniqContactName
+  ,UniqEntity
+  ,REPLACE(REPLACE(REPLACE(DescriptionOf, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as DescriptionOf
+  ,REPLACE(REPLACE(REPLACE(Number, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as Number
+  ,Extension
+  ,REPLACE(REPLACE(REPLACE(EmailWeb, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as EmailWeb
+  ,TypeCode
+  ,ScreenOrder
+  ,CallPermission
+  ,InsertedByCode
+  ,InsertedDate
+  ,UpdatedByCode
+  ,UpdatedDate
+  ,Flags
+  ,PhoneCountryCode
+  , CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.contactnumber
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.contactnumber`
+  (uniqcontactnumber        STRING,
+  uniqfixedcontactnumber    STRING,
+  uniqcontactname           STRING,
+  uniqentity                STRING,
+  descriptionof             STRING,
+  number                    STRING,
+  extension                 STRING,
+  emailweb                  STRING,
+  typecode                  STRING,
+  screenorder               STRING,
+  callpermission            STRING,
+  insertedbycode            STRING,
+  inserteddate              STRING,
+  updatedbycode             STRING,
+  updateddate               STRING,
+  flags                     STRING,
+  phonecountrycode          STRING,
+  adw_lake_insert_datetime      DATETIME,
+  adw_lake_insert_batch_number  INT64
+  )
+  PARTITION BY DATE(_PARTITIONTIME);

@@ -1,0 +1,38 @@
+database_source: mzp
+dataset_name: mzp
+table_name: renewal_method_audit
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/renewal_method_audit/source/{{{{ ds }}}}
+
+query: >-
+  select
+         renewal_method_audit_ky         ,
+         membership_ky                   ,
+         agent_id                        ,
+         user_id                         ,
+         renew_method_cd                 ,
+         last_upd_dt                     ,
+         update_fl                       ,
+         solicitation_code,
+         SYSDATE as adw_lake_insert_datetime,
+         {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+         from mz_plus_212.mz_renewal_method_audit
+         where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.renewal_method_audit` (
+   RENEWAL_METHOD_AUDIT_KY         STRING        NOT NULL,
+     MEMBERSHIP_KY                   STRING,
+     AGENT_ID                        STRING,
+     USER_ID                         STRING,
+     RENEW_METHOD_CD                 STRING,
+     LAST_UPD_DT                     STRING,
+     UPDATE_FL                       STRING,
+     provider_hr_key                 STRING,
+     adw_lake_insert_datetime        DATETIME,
+     adw_lake_insert_batch_number    INT64)
+    PARTITION BY DATE(_PARTITIONTIME);
+
+

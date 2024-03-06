@@ -1,0 +1,61 @@
+database_source: epic
+dataset_name: epic
+table_name: contactaddress
+hwm_column: updateddate
+split_by_column: updateddate
+num_mappers: 6
+target_dir: gs://adw-lake-epic-{ENV}/contactaddress/source/{{{{ ds }}}}
+
+query: >-
+  select
+  UniqContactAddress
+  ,UniqFixedContactAddress
+  ,UniqEntity
+  ,REPLACE(REPLACE(REPLACE(DescriptionOf, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as DescriptionOf
+  ,REPLACE(REPLACE(REPLACE(Address1, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as Address1
+  ,REPLACE(REPLACE(REPLACE(Address2, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as Address2
+  ,REPLACE(REPLACE(REPLACE(Address3, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as Address3
+  ,City
+  ,CdStateCode
+  ,PostalCode
+  ,County
+  ,CdCountryCode
+  ,InsertedByCode
+  ,InsertedDate
+  ,UpdatedByCode
+  ,UpdatedDate
+  ,Flags
+  ,SiteID
+  ,RegionProvince
+  , CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.contactaddress
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.contactaddress` (
+      uniqcontactaddress         STRING,
+      uniqfixedcontactaddress    STRING,
+      uniqentity                 STRING,
+      descriptionof              STRING,
+      address1                   STRING,
+      address2                   STRING,
+      address3                   STRING,
+      city                       STRING,
+      cdstatecode                STRING,
+      postalcode                 STRING,
+      county                     STRING,
+      cdcountrycode              STRING,
+      insertedbycode             STRING,
+      inserteddate               STRING,
+      updatedbycode              STRING,
+      updateddate                STRING,
+      flags                      STRING,
+      siteid                     STRING,
+      regionprovince             STRING,
+      adw_lake_insert_datetime               DATETIME,
+      adw_lake_insert_batch_number             INT64
+  )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

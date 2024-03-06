@@ -1,0 +1,48 @@
+database_source: mzp
+dataset_name: mzp
+table_name: bill_detail
+hwm_column: last_upd_dt
+split_by_column : to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/bill_detail/source/{{{{ ds }}}}
+
+query: >-
+  select
+      bill_detail_ky
+      ,bill_summary_ky
+      ,member_ky
+      ,rider_ky
+      ,bill_detail_at
+      ,last_upd_dt
+      ,dues_adjust_detail_at
+      ,payment_detail_at
+      ,detail_text
+      ,membership_fees_ky
+      ,billing_category_cd
+      ,solicitation_cd
+      ,donation_history_ky
+      ,SYSDATE as adw_lake_insert_datetime
+      ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_bill_detail
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.bill_detail` (
+   BILL_DETAIL_KY                  STRING,
+   BILL_SUMMARY_KY                 STRING,
+   MEMBER_KY                       STRING,
+   RIDER_KY                        STRING,
+   BILL_DETAIL_AT                  STRING,
+   LAST_UPD_DT                     STRING,
+   DUES_ADJUST_DETAIL_AT           STRING,
+   PAYMENT_DETAIL_AT               STRING,
+   DETAIL_TEXT                     STRING,
+   MEMBERSHIP_FEES_KY              STRING,
+   BILLING_CATEGORY_CD             STRING,
+   SOLICITATION_CD                 STRING,
+   DONATION_HISTORY_KY             STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64)
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;
+  

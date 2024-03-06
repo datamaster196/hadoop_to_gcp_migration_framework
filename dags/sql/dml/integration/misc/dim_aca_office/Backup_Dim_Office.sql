@@ -1,0 +1,1 @@
+bq query --nouse_legacy_sql 'CREATE OR REPLACE TABLE `adw-dev.adw_work.dim_aca_office_backup` AS SELECT * FROM `adw-dev.adw.dim_aca_office`'

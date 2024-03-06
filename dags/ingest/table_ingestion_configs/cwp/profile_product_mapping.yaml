@@ -1,0 +1,45 @@
+database_source: cwp
+dataset_name: cwp
+table_name: profile_product_mapping
+hwm_column: last_updated_dt
+split_by_column: last_updated_dt
+num_mappers: 6
+target_dir: gs://adw-lake-cwp-{ENV}/profile_product_mapping/source/{{{{ ds }}}}
+
+
+query: >-
+  select * from (
+  select
+         [id]
+        ,[fk_profile_id]
+        ,[account_id]
+        ,[fk_source_system_id]
+        ,[is_active]
+        ,[created_by]
+        ,[create_dt]
+        ,coalesce(last_updated_dt, create_dt)  as last_updated_dt
+        ,[updated_by]
+        ,[system_name]
+        ,CURRENT_TIMESTAMP as adw_lake_insert_datetime
+        ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].web_profile.profile_product_mapping ) as a
+  where  $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.cwp.profile_product_mapping` (
+    id                               STRING,
+    account_id                       STRING,
+    fk_profile_id                    STRING,
+    fk_source_system_id              STRING,
+    is_active                        STRING,
+    created_by                       STRING,
+    create_dt                        STRING,
+    last_updated_dt                  STRING,
+    updated_by                       STRING,
+    system_name                      STRING,
+    adw_lake_insert_datetime         datetime,
+    adw_lake_insert_batch_number     int64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

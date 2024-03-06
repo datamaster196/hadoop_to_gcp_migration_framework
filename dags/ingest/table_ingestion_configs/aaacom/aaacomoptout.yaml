@@ -1,0 +1,34 @@
+database_source: aaacom
+dataset_name: aaacom
+table_name: aaacomoptout
+hwm_column:
+split_by_column:
+num_mappers: 1
+target_dir:
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.aaacom.aaacomoptout` (
+    submitDate                      String,
+    firstName                       String,
+    middleInitial                   String,
+    lastName                        String,
+    address1                        String,
+    address2                        String,
+    city                            String,
+    state                           String,
+    zipCode                         String,
+    phoneArea                       String,
+    phonePrefix                     String,
+    phoneSuffix                     String,
+    Email                           String,
+    membershipID                    String,
+    OptOut_byPhone                  String,
+    OptOut_byMail                   String,
+    OptOut_byEmail                  String,
+    Promocode                       String,
+    adw_lake_insert_datetime        datetime,
+    adw_lake_insert_batch_number    int64
+    )
+    PARTITION BY DATE(_PARTITIONTIME)
+    ;

@@ -1,0 +1,48 @@
+database_source: mzp
+dataset_name: mzp
+table_name: payment_detail
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/payment_detail/source/{{{{ ds }}}}
+
+query: >-
+  select
+  payment_detail_ky
+  ,membership_payment_ky
+  ,member_ky
+  ,membership_payment_at
+  ,REPLACE(REPLACE(REPLACE(description, CHR(10)), CHR(13)), CHR(124)) AS description
+  ,last_upd_dt
+  ,rider_ky
+  ,membership_fees_ky
+  ,unapplied_used_at
+  ,made_active_fl
+  ,made_pending_fl
+  ,donation_history_ky
+  ,discount_history_ky
+  , SYSDATE as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_payment_detail
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.payment_detail` (
+    PAYMENT_DETAIL_KY               STRING,
+     MEMBERSHIP_PAYMENT_KY           STRING,
+     MEMBER_KY                       STRING,
+     MEMBERSHIP_PAYMENT_AT           STRING,
+     DESCRIPTION                     STRING,
+     LAST_UPD_DT                     STRING,
+     RIDER_KY                        STRING,
+     MEMBERSHIP_FEES_KY              STRING,
+     UNAPPLIED_USED_AT               STRING,
+     MADE_ACTIVE_FL                  STRING,
+     MADE_PENDING_FL                 STRING,
+     DONATION_HISTORY_KY             STRING,
+     DISCOUNT_HISTORY_KY             STRING,
+     adw_lake_insert_datetime        DATETIME,
+     adw_lake_insert_batch_number    INT64)
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;
+

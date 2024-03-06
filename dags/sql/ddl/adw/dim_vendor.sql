@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS `{{ var.value.INTEGRATION_PROJECT }}.adw.dim_vendor`(
+    vendor_adw_key                   STRING     NOT NULL,
+    biz_line_adw_key            STRING     NOT NULL,
+    address_adw_key                  STRING        NOT NULL,
+    email_adw_key                    STRING        NOT NULL,
+    vendor_cd                      STRING,
+    vendor_name                      STRING,
+    vendor_typ                      STRING,
+    internal_facility_cd           INT64,
+    vendor_contact                   STRING,
+    preferred_vendor                 STRING,
+    vendor_status                    STRING,
+    service_region                   STRING,
+    service_region_desc       STRING,
+    fleet_ind                  STRING,
+    aaa_facility                     STRING,
+    effective_start_datetime         DATETIME            NOT NULL,
+    effective_end_datetime           DATETIME            NOT NULL,
+    actv_ind                 STRING         NOT NULL,
+    adw_row_hash                     STRING        NOT NULL,
+    integrate_insert_datetime        DATETIME            NOT NULL,
+    integrate_insert_batch_number    INT64         NOT NULL,
+    integrate_update_datetime        DATETIME            NOT NULL,
+    integrate_update_batch_number    INT64         NOT NULL
+)
+;

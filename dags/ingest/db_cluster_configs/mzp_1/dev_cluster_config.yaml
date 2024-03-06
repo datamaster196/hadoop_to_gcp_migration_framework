@@ -1,0 +1,8 @@
+cluster_name        : 'sqoop-gcp-ingest-mzp-1'
+num_workers         : '3'
+master_machine_type : 'n1-standard-1'
+master_disk_type    : 'pd-standard'
+master_disk_size    : '20'
+worker_machine_type : 'n1-standard-1'
+worker_disk_type    : 'pd-standard'
+worker_disk_size    : '30'

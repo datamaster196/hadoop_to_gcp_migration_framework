@@ -1,0 +1,29 @@
+database_source: mzp
+dataset_name: mzp
+table_name: solicitation_discount
+hwm_column: 
+split_by_column: solicitation_dscnt_ky
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/solicitation_discount/source/{{{{ ds }}}}
+
+query: >-
+  select
+      solicitation_dscnt_ky           ,
+      solicitation_ky                 ,
+      discount_cd                     ,
+      SYSDATE as adw_lake_insert_datetime,
+      {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_solicitation_discount
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.solicitation_discount` (
+    SOLICITATION_DSCNT_KY           STRING,
+     SOLICITATION_KY                 STRING,
+     DISCOUNT_CD                     STRING,
+     adw_lake_insert_datetime        DATETIME,
+     adw_lake_insert_batch_number    INT64)
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;
+
+

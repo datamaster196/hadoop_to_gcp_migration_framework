@@ -1,0 +1,57 @@
+database_source: cwp
+dataset_name: cwp
+table_name: profile
+load_strategy : append
+hwm_column: last_updated_dt
+split_by_column: last_updated_dt
+num_mappers: 6
+target_dir: gs://adw-lake-cwp-{ENV}/profile/source/{{{{ ds }}}}
+
+
+query: >-
+  select * from (
+  select [id]
+        ,[encrypted_id]
+        ,REPLACE(REPLACE(REPLACE(email, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as email
+        ,[first_name]
+        ,[last_name]
+        ,[email_token]
+        ,[customer_id]
+        ,[is_verified]
+        ,[is_active]
+        ,[deactivated_on]
+        ,[create_dt]
+        ,coalesce(last_updated_dt, create_dt)  as [last_updated_dt]
+        ,[created_by]
+        ,[updated_by]
+        ,[system_name]
+        ,[nKey]
+        ,CURRENT_TIMESTAMP as adw_lake_insert_datetime
+        ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from   [{db_name}].web_profile.Profile ) as a
+  where  $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.cwp.profile` (
+    id                               STRING,
+    encrypted_id                     STRING,
+    email                            STRING,
+    first_name                       STRING,
+    last_name                        STRING,
+    email_token                      STRING,
+    customer_id                      STRING,
+    is_verified                      STRING,
+    is_active                        STRING,
+    deactivated_on                   STRING,
+    create_dt                        STRING,
+    last_updated_dt                  STRING,
+    created_by                       STRING,
+    updated_by                       STRING,
+    system_name                      STRING,
+    nkey                             STRING,
+    adw_lake_insert_datetime         datetime,
+    adw_lake_insert_batch_number     int64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

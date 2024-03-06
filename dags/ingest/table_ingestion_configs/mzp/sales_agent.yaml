@@ -1,0 +1,65 @@
+database_source: mzp
+dataset_name: mzp
+table_name: sales_agent
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 1
+target_dir: gs://adw-lake-mzp-{ENV}/sales_agent/source/{{{{ ds }}}}
+
+query: >-
+  select
+        agent_id
+        ,branch_ky
+        ,first_name
+        ,last_name
+        ,commission_fl
+        ,hire_dt
+        ,agent_type_cd
+        ,last_upd_dt
+        ,user_id
+        ,termination_dt
+        ,source_of_sale
+        ,source_of_sale_cd
+        ,status
+        ,pos_user
+        ,pos_office
+        ,vendor_ky
+        ,entrance_fee_commission_fl
+        ,drawer_at
+        ,mrm_id
+        ,corp_id
+        ,null as flex_id
+        , SYSDATE as adw_lake_insert_datetime
+        , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_sales_agent
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.sales_agent` (
+   AGENT_ID                        STRING,
+   BRANCH_KY                       STRING,
+   FIRST_NAME                      STRING,
+   LAST_NAME                       STRING,
+   COMMISSION_FL                   STRING,
+   HIRE_DT                         STRING,
+   AGENT_TYPE_CD                   STRING,
+   LAST_UPD_DT                     STRING,
+   USER_ID                         STRING,
+   TERMINATION_DT                  STRING,
+   SOURCE_OF_SALE                  STRING,
+   SOURCE_OF_SALE_CD               STRING,
+   STATUS                          STRING,
+   POS_USER                        STRING,
+   POS_OFFICE                      STRING,
+   VENDOR_KY                       STRING,
+   ENTRANCE_FEE_COMMISSION_FL      STRING,
+   DRAWER_AT                       STRING,
+   MRM_ID                          STRING,
+   CORP_ID                         STRING,
+   flex_id                         STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64)
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;
+
+

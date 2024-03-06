@@ -1,0 +1,46 @@
+database_source: sfmc
+dataset_name: sfmc
+table_name: sendlog
+hwm_column:
+split_by_column: senddate
+num_mappers: 6
+target_dir: gs://adw-lake-eds-sfmc-{ENV}/sendlog_hist/source/{{{{ ds }}}}
+
+query: >-
+  select
+  JobID
+  ,ListID
+  ,BatchID
+  ,SubscriberID
+  ,triggeredsendid
+  ,errorcode
+  ,commid
+  ,replace(replace(replace(messagesubject,CHAR(124),CHAR(32)),char(10),char(32)),char(13),char(32)) as messagesubject
+  ,emailaddress
+  ,senddate
+  ,subscriberkey
+  ,listname
+  ,CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.eds_et_sendlog
+  where active_indic = CHAR(121) and senddate >= '"'01/01/2018'"' and $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.sfmc.sendlog` (
+    jobid						    STRING,
+    listid							STRING,
+    batchid							STRING,
+    subscriberid					STRING,
+    triggeredsendid					STRING,
+    errorcode					    STRING,
+    commid                          STRING,
+    messagesubject                  STRING,
+    emailaddress                    STRING,
+    senddate                        STRING,
+    subscriberkey					STRING,
+    listname				        STRING,
+    adw_lake_insert_datetime        DATETIME,
+    adw_lake_insert_batch_number    INT64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

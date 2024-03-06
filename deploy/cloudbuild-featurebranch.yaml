@@ -1,0 +1,78 @@
+steps:
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    dagBucket=gs://$_COMPOSER_BUCKET_PATH/dags
+    dataBucket=gs://$_COMPOSER_BUCKET_PATH/data
+    
+    cd dags/ingest
+    #patching d3 files
+
+    replaced_with="ingestion_utilities_$_DEP_NAME"
+    text_to_replace="ingestion_utilities"
+    sed_cmd="s/$text_to_replace/$replaced_with/g"
+    echo $sed_cmd
+    sed -i $sed_cmd ingest_d3.py
+
+    replaced_with="ingest_d3_$_DEP_NAME"
+    text_to_replace="ingest_d3"
+    sed_cmd="s/$text_to_replace/$replaced_with/g"
+    echo $sed_cmd
+    sed -i $sed_cmd ingest_d3.py
+
+    #patching epic files
+    replaced_with="ingestion_utilities_$_DEP_NAME"
+    text_to_replace="ingestion_utilities"
+    sed_cmd="s/$text_to_replace/$replaced_with/g"
+    echo $sed_cmd
+    sed -i $sed_cmd ingest_epic.py
+
+    replaced_with="ingest_d3_$_DEP_NAME"
+    text_to_replace="ingest_epic"
+    sed_cmd="s/$text_to_replace/$replaced_with/g"
+    echo $sed_cmd
+    sed -i $sed_cmd ingest_epic.py
+
+    #patching mzp files
+    replaced_with="ingestion_utilities_$_DEP_NAME"
+    text_to_replace="ingestion_utilities"
+    sed_cmd="s/$text_to_replace/$replaced_with/g"
+    echo $sed_cmd
+    sed -i $sed_cmd ingest_mzp.py
+
+    replaced_with="ingest_mzp_$_DEP_NAME"
+    text_to_replace="ingest_mzp"
+    sed_cmd="s/$text_to_replace/$replaced_with/g"
+    echo $sed_cmd
+    sed -i $sed_cmd ingest_mzp.py
+
+    #rename files to accomodate deployment name
+   
+    for j in *.py; do mv -- "$j" "${j%.py}_$_DEP_NAME.py"; done
+
+    cd ../utils
+
+    replaced_with="dataproc-cluster_$_DEP_NAME"
+    text_to_replace="config\[db\]\['cluster_name'\]"
+    sed_cmd="s/$text_to_replace/$replaced_with/g"
+    echo $sed_cmd
+    sed -i $sed_cmd ingestion_utilities.py
+
+    for j in *.py; do mv -- "$j" "${j%.py}_$_DEP_NAME.py"; done
+
+    cd ../../
+  
+    #copy files to composer bucket
+    gsutil cp -r data/* $dataBucket
+    gsutil cp -r dags/ingest/* $dagBucket
+    gsutil cp -r dags/utils $dagBucket
+
+substitutions:
+  _COMPOSER_BUCKET_PATH: adw-scheduling-dev
+  _LOG_BUCKET_PATH: adw-scheduling-dev
+  _DEP_NAME: dep1
+
+logsBucket: 'gs://$_LOG_BUCKET_PATH/buildlogs'

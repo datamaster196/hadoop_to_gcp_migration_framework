@@ -1,0 +1,103 @@
+database_source: d3
+dataset_name: d3
+table_name: service_facility
+hwm_column:
+split_by_column:
+num_mappers: 1
+target_dir: gs://adw-lake-d3-{ENV}/service_facility/source/{{{{ ds }}}}
+
+query: >-
+  Select
+    facil_int_id,
+    svc_facl_id,
+    REPLACE(REPLACE(REPLACE(svc_facl_bsc_ad, CHR(10), CHR(32)), CHR(13), CHR(32)), CHR(124), CHR(32)) AS svc_facl_bsc_ad,
+    svc_facl_cty_nm,
+    svc_facl_d_s_e_tm,
+    REPLACE(REPLACE(REPLACE(svc_facl_nm, CHR(10), CHR(32)), CHR(13), CHR(32)), CHR(124), CHR(32)) AS svc_facl_nm,
+    svc_facl_st_cd,
+    svc_facl_sts_cd,
+    REPLACE(REPLACE(REPLACE(svc_facl_supl_ad, CHR(10), CHR(32)), CHR(13), CHR(32)), CHR(124), CHR(32)) AS svc_facl_supl_ad,
+    svc_facl_zip_cd,
+    svc_facl_func_cd,
+    svc_facl_rep_id,
+    svc_facl_fed_id,
+    svc_facl_id_flag,
+    svc_facl_dir_dep,
+    svc_facl_start_dt,
+    svc_facl_route_nr,
+    svc_facl_acct_nr,
+    svc_facl_inact_dt,
+    svc_facl_ins_exp,
+    dont_price,
+    comm_ctr_id,
+    tax_flag,
+    svc_facl_bonus_amt,
+    svc_facl_rec_bon,
+    svc_facl_fed_start,
+    REPLACE(REPLACE(REPLACE(svc_facl_contact, CHR(10), CHR(32)), CHR(13), CHR(32)), CHR(124), CHR(32)) as svc_facl_contact,
+    suspend_stmt_flag,
+    auto_suspend_flag,
+    svc_facl_pst_id,
+    svc_facl_pst_start,
+    daily_balancing,
+    svc_facl_type,
+    REPLACE(REPLACE(REPLACE(svc_facl_type2, CHR(10), CHR(32)), CHR(13), CHR(32)), CHR(124), CHR(32)) as svc_facl_type2,
+    REPLACE(REPLACE(REPLACE(svc_facl_email, CHR(10), CHR(32)), CHR(13), CHR(32)), CHR(124), CHR(32)) as svc_facl_email,
+    electronic_stmt_flag,
+    club_contract_flag,
+    calc_tow_mile_flag,
+    calc_enroute_mile_flag,
+    truck_er_flag,
+    SYSDATE as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  FROM
+    aca_ers_hist.service_facility
+    WHERE
+    $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.d3.service_facility` (
+    facil_int_id           STRING,
+    svc_facl_id            STRING,
+    svc_facl_bsc_ad        STRING,
+    svc_facl_cty_nm        STRING,
+    svc_facl_d_s_e_tm      STRING,
+    svc_facl_nm            STRING,
+    svc_facl_st_cd         STRING,
+    svc_facl_sts_cd        STRING,
+    svc_facl_supl_ad       STRING,
+    svc_facl_zip_cd        STRING,
+    svc_facl_func_cd       STRING,
+    svc_facl_rep_id        STRING,
+    svc_facl_fed_id        STRING,
+    svc_facl_id_flag       STRING,
+    svc_facl_dir_dep       STRING,
+    svc_facl_start_dt      STRING,
+    svc_facl_route_nr      STRING,
+    svc_facl_acct_nr       STRING,
+    svc_facl_inact_dt      STRING,
+    svc_facl_ins_exp       STRING,
+    dont_price             STRING,
+    comm_ctr_id            STRING,
+    tax_flag               STRING,
+    svc_facl_bonus_amt     STRING,
+    svc_facl_rec_bon       STRING,
+    svc_facl_fed_start     STRING,
+    svc_facl_contact       STRING,
+    suspend_stmt_flag      STRING,
+    auto_suspend_flag      STRING,
+    svc_facl_pst_id        STRING,
+    svc_facl_pst_start     STRING,
+    daily_balancing        STRING,
+    svc_facl_type          STRING,
+    svc_facl_type2         STRING,
+    svc_facl_email         STRING,
+    electronic_stmt_flag   STRING,
+    club_contract_flag     STRING,
+    calc_tow_mile_flag     STRING,
+    calc_enroute_mile_flag STRING,
+    truck_er_flag          STRING,
+    adw_lake_insert_datetime		DATETIME,
+    adw_lake_insert_batch_number	INT64
+    )
+    PARTITION BY DATE(_PARTITIONTIME);

@@ -1,0 +1,69 @@
+database_source: epic
+dataset_name: epic
+table_name: hr_sqldata
+hwm_column:
+split_by_column: 
+num_mappers: 4
+target_dir: gs://adw-lake-eds-epic-{ENV}/hr_sqldata_hist/source/{{{{ ds }}}}
+
+
+query: >-
+  SELECT flxid,
+       dateoriginalhire,
+       status,
+       region,
+       location,
+       department,
+       title,
+       supervisorflxideb,
+       supervisor,
+       workphone,
+       faxphone,
+       firstname,
+       lastname,
+       email,
+       cidescrip,
+       bubdescrip,
+       ejjobcode,
+       eetermwhy,
+       ebsort1,
+       wd_costcenter,
+       branch_code,
+       terminationdate,
+       position_time_type ,
+       CURRENT_TIMESTAMP AS adw_lake_insert_datetime ,
+       {{{{ dag_run.id }}}}    AS adw_lake_insert_batch_number
+  FROM   [{db_name}].dbo.eds_hr_sqldata
+  WHERE  active_indic = CHAR(89) AND $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.hr_sqldata` (
+     flxid                        STRING,
+     dateoriginalhire             DATETIME,
+     status                       STRING,
+     region                       STRING,
+     location                     STRING,
+     department                   STRING,
+     title                        STRING,
+     supervisorflxideb            STRING,
+     supervisor                   STRING,
+     workphone                    STRING,
+     faxphone                     STRING,
+     firstname                    STRING,
+     lastname                     STRING,
+     email                        STRING,
+     cidescrip                    STRING,
+     bubdescrip                   STRING,
+     ejjobcode                    STRING,
+     eetermwhy                    STRING,
+     ebsort1                      STRING,
+     wd_costcenter                STRING,
+     branch_code                  STRING,
+     terminationdate              DATETIME,
+     position_time_type           STRING,
+     adw_lake_insert_datetime     DATETIME,
+     adw_lake_insert_batch_number INT64
+  )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

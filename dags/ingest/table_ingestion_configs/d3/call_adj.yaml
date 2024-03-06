@@ -1,0 +1,101 @@
+database_source: d3
+dataset_name: d3
+table_name: call_adj
+hwm_column: adj_record_date
+split_by_column: to_number(to_char(adj_record_date ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-d3-{ENV}/call_adj/source/{{{{ ds }}}}
+
+query: >-
+  Select
+    adj_seq_id,
+    comm_ctr_id,
+    sc_dt,
+    sc_id,
+    del_flag,
+    acct_type,
+    emple_id,
+    pay_id,
+    facil_int_id,
+    adj_record_date,
+    pay_facil,
+    pay_recip,
+    pay_1099,
+    charge_entl,
+    recip_pay_date,
+    REPLACE(REPLACE(REPLACE(adj_description, CHR(10), CHR(32)), CHR(13), CHR(32)), CHR(124), CHR(32)) AS adj_description,
+    adj_svcp_cd,
+    adj_units,
+    adj_unit_cost,
+    adj_uom_cd,
+    adj_add_chrg,
+    adj_basic_cost,
+    adj_other_cost,
+    adj_plus_cost,
+    adj_plusrv_cost,
+    adj_tot_cost,
+    adj_disp_app,
+    adj_disp_price,
+    adj_tier_status,
+    adj_ratec_cd,
+    adj_tod_cd,
+    sc_prob_cd,
+    except_flag,
+    adj_tax1,
+    adj_tax2,
+    adj_acct_dt,
+    feed_processed,
+    adj_prem_cost,
+    adj_prrv_cost,
+    SYSDATE as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  FROM
+    aca_ers_hist.call_adj
+  WHERE
+    $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.d3.call_adj` (
+    adj_seq_id      STRING,
+    comm_ctr_id     STRING,
+    sc_dt           STRING,
+    sc_id           STRING,
+    del_flag        STRING,
+    acct_type       STRING,
+    emple_id        STRING,
+    pay_id          STRING,
+    facil_int_id    STRING,
+    adj_record_date STRING,
+    pay_facil       STRING,
+    pay_recip       STRING,
+    pay_1099        STRING,
+    charge_entl     STRING,
+    recip_pay_date  STRING,
+    adj_description STRING,
+    adj_svcp_cd     STRING,
+    adj_units       STRING,
+    adj_unit_cost   STRING,
+    adj_uom_cd      STRING,
+    adj_add_chrg    STRING,
+    adj_basic_cost  STRING,
+    adj_other_cost  STRING,
+    adj_plus_cost   STRING,
+    adj_plusrv_cost STRING,
+    adj_tot_cost    STRING,
+    adj_disp_app    STRING,
+    adj_disp_price  STRING,
+    adj_tier_status STRING,
+    adj_ratec_cd    STRING,
+    adj_tod_cd      STRING,
+    sc_prob_cd      STRING,
+    except_flag     STRING,
+    adj_tax1        STRING,
+    adj_tax2        STRING,
+    adj_acct_dt     STRING,
+    feed_processed  STRING,
+    adj_prem_cost   STRING,
+    adj_prrv_cost   STRING,
+    adw_lake_insert_datetime   DATETIME,
+    adw_lake_insert_batch_number   INT64
+  )
+  PARTITION BY DATE(_PARTITIONTIME);

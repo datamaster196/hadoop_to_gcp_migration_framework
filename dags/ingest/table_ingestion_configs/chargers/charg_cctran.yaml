@@ -1,0 +1,105 @@
+database_source: chargers
+dataset_name: chargers
+table_name: charg_cctran
+hwm_column: trans_date_time
+split_by_column: trans_date_time
+num_mappers: 1
+target_dir: gs://adw-lake-chargers-{ENV}/charg_cctran/source/{{{{ ds }}}}
+
+
+query: >-
+  select  cc_tran_id
+        ,merchant_id
+        ,club_cd
+        ,mbr_id
+        ,ers_call_id
+        ,ers_serv_date
+        ,userid
+        ,trans_date_time
+        ,tran_type
+        ,captured
+        ,account_number
+        ,expiration_date
+        ,amount
+        ,primary_amount
+        ,add_amount
+        ,pay_type
+        ,add_pay_type
+        ,card_type
+        ,account_extension
+        ,customer_lname
+        ,customer_fname
+        ,customer_phone
+        ,customer_street
+        ,customer_city
+        ,customer_state
+        ,customer_zip
+        ,customer_email
+        ,address_match
+        ,zip_match
+        ,payx_seq_id
+        ,payx_return_code
+        ,payx_return_msg
+        ,payx_auth_resp_code
+        ,payx_auth_response_msg
+        ,payx_approval_code
+        ,payx_seq_id_org
+        ,REPLACE(REPLACE(REPLACE(comment, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as comment
+        ,cc_token
+        ,customer_wphone
+        ,send_sms
+        ,send_email
+        ,CURRENT_TIMESTAMP as adw_lake_insert_datetime
+        ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.charg_cctran
+  where  $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.chargers.charg_cctran` (
+                cc_tran_id                        STRING ,
+                merchant_id                       STRING,
+                club_cd                           STRING ,
+                mbr_id                            STRING ,
+                ers_call_id                       STRING ,
+                ers_serv_date                     STRING ,
+                userid                            STRING ,
+                trans_date_time                   STRING ,
+                tran_type                         STRING ,
+                captured                          STRING ,
+                account_number                    STRING ,
+                expiration_date                   STRING ,
+                amount                            STRING ,
+                primary_amount                    STRING,
+                add_amount                        STRING,
+                pay_type                          STRING,
+                add_pay_type                      STRING,
+                card_type                         STRING ,
+                account_extension                 STRING,
+                customer_lname                    STRING,
+                customer_fname                    STRING,
+                customer_phone                    STRING,
+                customer_street                   STRING,
+                customer_city                     STRING,
+                customer_state                    STRING,
+                customer_zip                      STRING,
+                customer_email                    STRING,
+                address_match                     STRING,
+                zip_match                         STRING,
+                payx_seq_id                       STRING,
+                payx_return_code                  STRING,
+                payx_return_msg                   STRING,
+                payx_auth_resp_code               STRING,
+                payx_auth_response_msg            STRING,
+                payx_approval_code                STRING,
+                payx_seq_id_org                   STRING,
+                comment                           STRING,
+                cc_token                          STRING,
+                customer_wphone                   STRING,
+                send_sms                          STRING,
+                send_email                        STRING,
+                adw_lake_insert_datetime          datetime,
+                adw_lake_insert_batch_number      int64
+        )
+      PARTITION BY DATE(_PARTITIONTIME)
+      ;

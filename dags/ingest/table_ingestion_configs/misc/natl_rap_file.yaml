@@ -1,0 +1,41 @@
+database_source: misc
+dataset_name: misc
+table_name: natl_rap_file
+hwm_column:
+split_by_column:
+num_mappers: 1
+target_dir:
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.misc.natl_rap_file` (
+    TransType	  STRING,
+    SubmitClub	  STRING,
+    ProcessorID	  STRING,
+    ServiceClub	  STRING,
+    ServiceDate	  DATE NOT NULL,
+    ServiceID	  STRING,
+    RAPCallID	  STRING NOT NULL,
+    FacilityID	  STRING,
+    ProblemCode	  STRING,
+    MedDutyInd	  STRING,
+    MemberClub	  STRING,
+    MemberID	  STRING,
+    MemberType	  STRING,
+    ExpiryDate	  DATE,
+    LastName	  STRING,
+    FirstName	  STRING,
+    VIN		      STRING,
+    Odometer	  STRING,
+    EnrouteMiles  NUMERIC,
+    TowMiles	  NUMERIC,
+    TaxAmount	  NUMERIC,
+    TotalAmount	  NUMERIC,
+    DisputeCode	  STRING,
+    ErrorBuffer	  STRING,
+    CostBuffer	  STRING,
+    SourceFile	  STRING NOT NULL,
+    UpdateDate	  DATE NOT NULL,
+    adw_lake_insert_datetime	DATETIME NOT NULL,
+    adw_lake_batch_number		INT64
+  )
+  ;

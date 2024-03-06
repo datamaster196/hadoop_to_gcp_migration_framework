@@ -1,0 +1,114 @@
+database_source: eds
+dataset_name: mzp
+table_name: rider
+hwm_column: last_upd_dt
+split_by_column: rider_ky
+num_mappers: 6
+target_dir: gs://adw-lake-eds-mzp-{ENV}/rider_hist/source/{{{{ ds }}}}
+
+
+query: >-
+  select
+  rider_ky
+  ,member_ky
+  ,membership_ky
+  ,status
+  ,billing_cd
+  ,status_dt
+  ,cancel_dt
+  ,cost_effective_dt
+  ,revised_dt
+  ,commission_cd
+  ,source_of_sale
+  ,solicitation_cd
+  ,agent_id
+  ,do_not_renew_fl
+  ,dues_cost_at
+  ,dues_adjustment_at
+  ,payment_at
+  ,paid_by_cd
+  ,donor_nr
+  ,rider_comp_cd
+  ,last_upd_dt
+  ,future_cancel_dt
+  ,billing_category_cd
+  ,cancel_reason_cd
+  ,dispersal_method_cd
+  ,reinstate_fl
+  ,effective_dt as effective_date
+  ,future_cancel_credit_at
+  ,adm_original_cost_at
+  ,original_agent_id
+  ,reinstate_reason_cd
+  ,extend_expiration_at
+  ,actual_cancel_dt
+  ,counted_fl
+  ,cancelled_by_cd
+  ,rider_definition_ky
+  ,premium_at
+  ,autorenewal_card_ky
+  ,gift_type_cd
+  ,donor_renewal_cd
+  ,gift_message
+  ,gift_message_text
+  ,secondary_agent_id
+  ,roll_on_fl
+  ,activation_dt
+  , CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.eds_mz_rider
+  where active_indic = CHAR(78) and $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.rider` (
+    rider_ky								STRING,
+    member_ky								STRING,
+    membership_ky						STRING,
+    status									STRING,
+    billing_cd							STRING,
+    status_dt								STRING,
+    cancel_dt								STRING,
+    cost_effective_dt				STRING,
+    revised_dt							STRING,
+    commission_cd						STRING,
+    source_of_sale				  STRING,
+    solicitation_cd				  STRING,
+    agent_id				        STRING,
+    do_not_renew_fl				  STRING,
+    dues_cost_at				    STRING,
+    dues_adjustment_at			STRING,
+    payment_at				      STRING,
+    paid_by_cd				      STRING,
+    donor_nr				        STRING,
+    rider_comp_cd				    STRING,
+    last_upd_dt				      STRING,
+    future_cancel_dt			  STRING,
+    billing_category_cd			STRING,
+    cancel_reason_cd			  STRING,
+    dispersal_method_cd			STRING,
+    reinstate_fl				    STRING,
+    effective_date				    STRING,
+    future_cancel_credit_at			STRING,
+    adm_original_cost_at			  STRING,
+    original_agent_id			      STRING,
+    reinstate_reason_cd			    STRING,
+    extend_expiration_at			  STRING,
+    actual_cancel_dt			      STRING,
+    counted_fl				          STRING,
+    cancelled_by_cd				      STRING,
+    rider_definition_ky			    STRING,
+    premium_at				          STRING,
+    autorenewal_card_ky			    STRING,
+    gift_type_cd				        STRING,
+    donor_renewal_cd			      STRING,
+    gift_message				        STRING,
+    gift_message_text			      STRING,
+    secondary_agent_id			    STRING,
+    roll_on_fl				          STRING,
+    activation_dt				        STRING,
+    adw_lake_insert_datetime             STRING,
+    adw_lake_insert_batch_number         STRING
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

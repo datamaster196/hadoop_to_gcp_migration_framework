@@ -1,0 +1,41 @@
+database_source: mzp
+dataset_name: mzp
+table_name: segmentation_history
+hwm_column: 
+split_by_column: segmentation_history_ky
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/segmentation_history/source/{{{{ ds }}}}
+
+query: >-
+ select
+  segmentation_history_ky,
+  membership_ky,
+  segmentation_setup_ky,
+  membership_exp_dt,
+  segmentation_test_end_dt,
+  segmentation_schedule_dt,
+  panel_cd,
+  segmentation_panel_cd,
+  control_panel_fl,
+  commission_cd,
+  SYSDATE as adw_lake_insert_datetime,
+  {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_segmentation_history
+  where $CONDITIONS
+ 
+ddl: >-
+ CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.segmentation_history` (
+ segmentation_history_ky         STRING        NOT NULL,
+ membership_ky                   STRING      NOT NULL,
+ segmentation_setup_ky           STRING,
+ membership_exp_dt               STRING,
+ segmentation_test_end_dt        STRING,
+ segmentation_schedule_dt        STRING,
+ panel_cd                        STRING,
+ segmentation_panel_cd           STRING,
+ control_panel_fl                STRING,
+ commission_cd                   STRING,
+ adw_lake_insert_datetime        DATETIME,
+ adw_lake_insert_batch_number    INT64)
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

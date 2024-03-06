@@ -1,0 +1,33 @@
+steps:
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    dagBucket=gs://us-east1-adw-composer-dev-bd844a38-bucket/dags
+
+    gsutil cp -r dags/ingest/table_ingestion_configs $dagBucket
+
+    gsutil cp -r dags/ingest/db_cluster_configs $dagBucket
+
+    gsutil cp -r dags/ingest/db_source_configs $dagBucket
+
+    gsutil cp -r dags/sql $dagBucket
+
+    gsutil cp -r dags/OutBound/db_cluster_configs $dagBucket
+
+    gsutil cp dags/ingest/*.py $dagBucket
+    gsutil cp dags/integrate/*.py $dagBucket
+    gsutil cp dags/misc/*.py $dagBucket
+    gsutil cp dags/OutBound/*.py $dagBucket
+    gsutil cp dags/datamart/*.py $dagBucket
+
+    gsutil cp -r dags/utils/*.py $dagBucket/utils
+    touch __init__.py && gsutil cp __init__.py $dagBucket
+
+substitutions:
+  _COMPOSER_BUCKET_PATH: adw-scheduling-dev
+  _LOG_BUCKET_PATH: adw-scheduling-dev
+
+logsBucket: 'gs://$_LOG_BUCKET_PATH/buildlogs'

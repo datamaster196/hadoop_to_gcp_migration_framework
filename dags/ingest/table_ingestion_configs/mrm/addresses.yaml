@@ -1,0 +1,49 @@
+database_source: mrm
+dataset_name: mrm
+table_name: addresses
+hwm_column: change_time
+split_by_column: addressid
+num_mappers: 3
+target_dir: gs://adw-lake-mrm-{ENV}/addresses/source/{{{{ ds }}}}
+
+query: >-
+  select
+  addressid,
+  customerid,
+  addresstype,
+  REPLACE(REPLACE(REPLACE(address1, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as address1,
+  address2,
+  city,
+  state,
+  zip,
+  country,
+  countyname,
+  countycode,
+  customer_audit.change_time as change_time,
+  CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+  {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.addresses addresses
+    left outer join (
+      select  customer_id, max(change_time) as change_time
+      from [{db_name}].dbo.customer_audit  group by customer_id)customer_audit  
+    on customer_audit.customer_id=addresses.customerid
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mrm.addresses`(
+  addressid    String,
+  customerid   String,
+  addresstype  String,
+  address1     String,
+  address2     String,
+  city         String,
+  state        String,
+  zip          String,
+  country      String,
+  countyname   String,
+  countycode   String,
+  change_time  STRING,
+  adw_lake_insert_datetime        datetime,
+  adw_lake_insert_batch_number    int64)
+  PARTITION BY DATE(_PARTITIONTIME);

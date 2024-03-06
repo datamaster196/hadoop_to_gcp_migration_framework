@@ -1,0 +1,130 @@
+database_source: mzp
+dataset_name: mzp
+table_name: payment_summary
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/payment_summary/source/{{{{ ds }}}}
+
+query: >-
+  select
+    membership_payment_ky
+    ,membership_ky
+    ,payment_dt
+    ,payment_at
+    ,batch_name
+    ,payment_method_cd
+    ,cc_type_cd
+    ,cc_expiration_dt
+    ,transaction_type_cd
+    ,adjustment_description_cd
+    ,source_cd
+    ,create_dt
+    ,paid_by_cd
+    ,last_upd_dt
+    ,cc_authorization_nr
+    ,reason_cd
+    ,check_nr
+    ,check_dt
+    ,rev_membership_payment_ky
+    ,donor_nr
+    ,bill_summary_ky
+    ,pnref
+    ,user_id
+    ,unapplied_at
+    ,parent_payment_ky
+    ,pos_sale_id
+    ,pos_ofc_id
+    ,pos_cust_recpt_nr
+    ,batch_ky
+    ,pos_comment
+    ,pos_consultant_id
+    ,cc_first_name
+    ,cc_middle_name
+    ,cc_last_name
+    ,cc_street
+    ,cc_zip
+    ,ach_bank_name
+    ,ach_bank_account_type
+    ,ach_bank_account_name
+    ,ach_authorization_nr
+    ,ach_street
+    ,ach_city
+    ,ach_state
+    ,ach_zip
+    ,ach_email
+    ,transaction_id
+    ,cc_transaction_id
+    ,advance_pay_at
+    ,ach_token
+    ,transaction_cd
+    ,branch_ky
+    ,cc_last_four
+    ,cc_state
+    ,cc_city
+  , SYSDATE as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_payment_summary
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.payment_summary` (
+    MEMBERSHIP_PAYMENT_KY           STRING,
+      MEMBERSHIP_KY                   STRING,
+      PAYMENT_DT                      STRING,
+      PAYMENT_AT                      STRING,
+      BATCH_NAME                      STRING,
+      PAYMENT_METHOD_CD               STRING,
+      CC_TYPE_CD                      STRING,
+      CC_EXPIRATION_DT                STRING,
+      TRANSACTION_TYPE_CD             STRING,
+      ADJUSTMENT_DESCRIPTION_CD       STRING,
+      SOURCE_CD                       STRING,
+      CREATE_DT                       STRING,
+      PAID_BY_CD                      STRING,
+      LAST_UPD_DT                     STRING,
+      CC_AUTHORIZATION_NR             STRING,
+      REASON_CD                       STRING,
+      CHECK_NR                        STRING,
+      CHECK_DT                        STRING,
+      REV_MEMBERSHIP_PAYMENT_KY       STRING,
+      DONOR_NR                        STRING,
+      BILL_SUMMARY_KY                 STRING,
+      PNREF                           STRING,
+      USER_ID                         STRING,
+      UNAPPLIED_AT                    STRING,
+      PARENT_PAYMENT_KY               STRING,
+      POS_SALE_ID                     STRING,
+      POS_OFC_ID                      STRING,
+      POS_CUST_RECPT_NR               STRING,
+      BATCH_KY                        STRING,
+      POS_COMMENT                     STRING,
+      POS_CONSULTANT_ID               STRING,
+      CC_FIRST_NAME                   STRING,
+      CC_MIDDLE_NAME                  STRING,
+      CC_LAST_NAME                    STRING,
+      CC_STREET                       STRING,
+      CC_ZIP                          STRING,
+      ACH_BANK_NAME                   STRING,
+      ACH_BANK_ACCOUNT_TYPE           STRING,
+      ACH_BANK_ACCOUNT_NAME           STRING,
+      ACH_AUTHORIZATION_NR            STRING,
+      ACH_STREET                      STRING,
+      ACH_CITY                        STRING,
+      ACH_STATE                       STRING,
+      ACH_ZIP                         STRING,
+      ACH_EMAIL                       STRING,
+      TRANSACTION_ID                  STRING,
+      CC_TRANSACTION_ID               STRING,
+      ADVANCE_PAY_AT                  STRING,
+      ACH_TOKEN                       STRING,
+      TRANSACTION_CD                  STRING,
+      BRANCH_KY                       STRING,
+      CC_LAST_FOUR                    STRING,
+      CC_STATE                        STRING,
+      CC_CITY                         STRING,
+      adw_lake_insert_datetime        DATETIME,
+      adw_lake_insert_batch_number    INT64)
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;
+

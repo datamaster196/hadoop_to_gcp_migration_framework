@@ -1,0 +1,88 @@
+database_source: mzp
+dataset_name: mzp
+table_name: sales_agent_activity
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/sales_agent_activity/source/{{{{ ds }}}}
+
+query: >-
+  select
+      sales_agent_activity_ky
+      ,transaction_dt
+      ,commission_cd
+      ,rider_comp_cd
+      ,member_ky
+      ,expiration_dt
+      ,branch_ky
+      ,solicitation_cd
+      ,source_of_sale
+      ,agent_id
+      ,transaction_cd
+      ,dues_at
+      ,user_id
+      ,daily_count_ind
+      ,daily_billed_ind
+      ,daily_pd_same_day_ind
+      ,commission_at
+      ,billing_category_cd
+      ,payment_detail_ky
+      ,secondary_agent_id
+      ,billing_subcat_cd
+      ,processed_fl
+      ,secondary_agent_branch_ky
+      ,commissionable_fl
+      ,add_on_fl
+      ,autorenewal_fl
+      ,fee_type
+      ,donation_ky
+      ,membership_branch_ky
+      ,null as provider_hr_key
+      ,last_upd_dt
+      ,paymentplan_fl
+      ,zip
+      ,SYSDATE as adw_lake_insert_datetime
+      ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_sales_agent_activity
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.sales_agent_activity` (
+   SALES_AGENT_ACTIVITY_KY         STRING,
+    TRANSACTION_DT                  STRING,
+    COMMISSION_CD                   STRING,
+    RIDER_COMP_CD                   STRING,
+    MEMBER_KY                       STRING,
+    EXPIRATION_DT                   STRING,
+    BRANCH_KY                       STRING,
+    SOLICITATION_CD                 STRING,
+    SOURCE_OF_SALE                  STRING,
+    AGENT_ID                        STRING,
+    TRANSACTION_CD                  STRING,
+    DUES_AT                         STRING,
+    USER_ID                         STRING,
+    DAILY_COUNT_IND                 STRING,
+    DAILY_BILLED_IND                STRING,
+    DAILY_PD_SAME_DAY_IND           STRING,
+    COMMISSION_AT                   STRING,
+    BILLING_CATEGORY_CD             STRING,
+    PAYMENT_DETAIL_KY               STRING,
+    SECONDARY_AGENT_ID              STRING,
+    BILLING_SUBCAT_CD               STRING,
+    PROCESSED_FL                    STRING,
+    SECONDARY_AGENT_BRANCH_KY       STRING,
+    COMMISSIONABLE_FL               STRING,
+    ADD_ON_FL                       STRING,
+    AUTORENEWAL_FL                  STRING,
+    FEE_TYPE                        STRING,
+    DONATION_KY                     STRING,
+    MEMBERSHIP_BRANCH_KY            STRING,
+    provider_hr_key                 STRING,
+    LAST_UPD_DT                     STRING,
+    paymentplan_fl                  STRING,
+    ZIP                             STRING,
+    adw_lake_insert_datetime        DATETIME,
+    adw_lake_insert_batch_number    INT64)
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;
+

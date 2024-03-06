@@ -1,0 +1,7 @@
+jar_files: gs://adw_admin_db_connections/ingestion_jars/sqoop-1.4.7-hadoop260.jar,gs://adw_admin_db_connections/ingestion_jars/avro-tools-1.8.2.jar,gs://adw_admin_db_connections/ingestion_jars/jtds-1.3.1.jar
+connect: jdbc:jtds:sqlserver://sqldbconverdw.aaacorp.com:58615;instance=EDW_AAA;DOMAIN=aaacorp;useNTLMv2=true;databaseName=eds;
+username: SVCGCPUSER
+password_file: gs://adw_admin_db_connections/source_db_account_credentials/ersbilling/dev/ersbilling_ro_user_pw.txt
+connection_manager: org.apache.sqoop.manager.SQLServerManager
+driver: net.sourceforge.jtds.jdbc.Driver
+db_name: eds

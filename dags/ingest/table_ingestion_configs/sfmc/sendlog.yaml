@@ -1,0 +1,28 @@
+database_source: sfmc
+dataset_name: sfmc
+table_name: sendlog
+hwm_column:
+split_by_column:
+num_mappers: 1
+target_dir:
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.sfmc.sendlog` (
+    jobid						    STRING,
+    listid							STRING,
+    batchid							STRING,
+    subscriberid					STRING,
+    triggeredsendid					STRING,
+    errorcode					    STRING,
+    commid                          STRING,
+    messagesubject                  STRING,
+    emailaddress                    STRING,
+    senddate                        STRING,
+    subscriberkey					STRING,
+    listname				        STRING,
+    adw_lake_insert_datetime        DATETIME,
+    adw_lake_insert_batch_number    INT64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

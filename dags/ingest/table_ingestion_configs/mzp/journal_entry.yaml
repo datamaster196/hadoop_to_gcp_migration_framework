@@ -1,0 +1,47 @@
+database_source: mzp
+dataset_name: mzp
+table_name: journal_entry
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/journal_entry/source/{{{{ ds }}}}
+
+query: >-
+  select
+      journal_entry_ky                ,
+      post_dt                         ,
+      process_dt                      ,
+      journal_at                      ,
+      create_dt                       ,
+      membership_ky                   ,
+      gl_account_ky                   ,
+      membership_payment_ky           ,
+      gl_process_ind                  ,
+      dr_cr_ind                       ,
+      last_upd_dt                     ,
+      SYSDATE as adw_lake_insert_datetime,
+      {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_journal_entry
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.journal_entry` (
+    JOURNAL_ENTRY_KY                STRING           NOT NULL,
+     POST_DT                         STRING,
+     PROCESS_DT                      STRING,
+     JOURNAL_AT                      STRING    NOT NULL,
+     CREATE_DT                       STRING             NOT NULL,
+     MEMBERSHIP_KY                   STRING          NOT NULL,
+     GL_ACCOUNT_KY                   STRING          NOT NULL,
+     MEMBERSHIP_PAYMENT_KY           STRING           NOT NULL,
+     GL_PROCESS_IND                  STRING       NOT NULL,
+     DR_CR_IND                       STRING       NOT NULL,
+     LAST_UPD_DT                     STRING,
+     adw_lake_insert_datetime        DATETIME,
+     adw_lake_insert_batch_number    INT64
+
+      )
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;
+
+

@@ -1,0 +1,44 @@
+database_source: sfmc
+dataset_name: sfmc
+table_name: listsubscribers
+hwm_column:
+split_by_column: subscriberid
+num_mappers: 12
+target_dir: gs://adw-lake-eds-sfmc-{ENV}/listsubscribers_hist/source/{{{{ ds }}}}
+
+
+query: >-
+  select
+  subscriberid
+  ,listid
+  ,listname
+  ,createddate
+  ,dateunsubscribed
+  ,emailaddress
+  ,replace(replace(replace(subscriberkey,CHAR(124),CHAR(32)),char(10),char(32)),char(13),char(32)) as subscriberkey
+  ,subscribertype
+  ,status
+  ,commid
+  ,CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.eds_et_listsubscribers
+  where active_indic = CHAR(121) and $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.sfmc.listsubscribers` (
+    subscriberid					STRING,
+    listid          				STRING,
+    listname						STRING,
+    createddate     				STRING,
+    dateunsubscribed				STRING,
+    emailaddress					STRING,
+    subscriberkey				    STRING,
+    subscribertype					STRING,
+    status							STRING,
+    commid							STRING,
+    adw_lake_insert_datetime        DATETIME,
+    adw_lake_insert_batch_number    INT64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

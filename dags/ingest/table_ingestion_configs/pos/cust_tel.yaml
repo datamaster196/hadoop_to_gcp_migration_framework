@@ -1,0 +1,41 @@
+database_source: pos
+dataset_name: pos
+table_name: cust_tel
+hwm_column: last_update
+split_by_column: last_update
+num_mappers: 6
+target_dir: gs://adw-lake-pos-{ENV}/cust_tel/source/{{{{ ds }}}}
+
+query: >-
+  select
+    assoc_cd  ,
+    clb_cd  ,
+    cust_id  ,
+    cust_tel_typ_id  ,
+    cust_tel_actv_in  ,
+    cust_tel_area_cd  ,
+    cust_tel_ext_nr ,
+    cust_tel_nr  ,
+    stamp  ,
+    last_update  ,
+    CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.cust_tel
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.pos.cust_tel`(
+    assoc_cd String ,
+    clb_cd String ,
+    cust_id String ,
+    cust_tel_typ_id String ,
+    cust_tel_actv_in String ,
+    cust_tel_area_cd String ,
+    cust_tel_ext_nr String,
+    cust_tel_nr String ,
+    stamp String ,
+    last_update String ,
+    adw_lake_insert_datetime datetime ,
+    adw_lake_insert_batch_number int64
+    ) PARTITION BY DATE(_PARTITIONTIME);

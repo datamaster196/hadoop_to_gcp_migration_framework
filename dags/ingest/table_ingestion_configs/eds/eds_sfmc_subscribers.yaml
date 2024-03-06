@@ -1,0 +1,48 @@
+database_source: sfmc
+dataset_name: sfmc
+table_name: subscribers
+hwm_column:
+split_by_column: subscriberid
+num_mappers: 6
+target_dir: gs://adw-lake-eds-sfmc-{ENV}/subscribers_hist/source/{{{{ ds }}}}
+
+
+query: >-
+  select
+  subscriberid
+  ,dateundeliverable
+  ,datejoined
+  ,dateunsubscribed
+  ,replace(replace(replace(domain,CHAR(124),CHAR(32)),char(10),char(32)),char(13),char(32)) as domain
+  ,replace(replace(replace(emailaddress,CHAR(124),CHAR(32)),char(10),char(32)),char(13),char(32)) as emailaddress
+  ,bouncecount
+  ,replace(replace(replace(subscriberkey,CHAR(124),CHAR(32)),char(10),char(32)),char(13),char(32)) as subscriberkey
+  ,subscribertype
+  ,status
+  ,locale
+  ,datemodified
+  ,CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.eds_et_subscribers
+  where active_indic = CHAR(121) and $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.sfmc.subscribers` (
+    subscriberid					STRING,
+    dateundeliverable				STRING,
+    datejoined						STRING,
+    dateunsubscribed				STRING,
+    domain							STRING,
+    emailaddress					STRING,
+    bouncecount					    STRING,
+    subscriberkey				    STRING,
+    subscribertype					STRING,
+    status							STRING,
+    locale							STRING,
+    modifieddate					STRING,
+    adw_lake_insert_datetime        DATETIME,
+    adw_lake_insert_batch_number    INT64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

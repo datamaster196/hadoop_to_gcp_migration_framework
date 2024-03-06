@@ -1,0 +1,136 @@
+database_source: mzp
+dataset_name: mzp
+table_name: batch_payment
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/batch_payment/source/{{{{ ds }}}}
+
+query: >-
+  select
+     batch_payment_ky
+      ,payment_at
+      ,payment_method_cd
+      ,payment_source_cd
+      ,cc_type_cd
+      ,cc_expiration_dt
+      ,transaction_type_cd
+      ,create_dt
+      ,batch_ky
+      ,reason_cd
+      ,membership_id
+      ,membership_ky
+      ,paid_by_cd
+      ,donor_ky
+      ,cc_authorization_nr
+      ,REPLACE(REPLACE(REPLACE(error_text, CHR(10)), CHR(13)), CHR(124)) AS error_text
+      ,last_upd_dt
+      ,adjustment_description_cd
+      ,post_completed_fl
+      ,post_dt
+      ,bill_ky
+      ,check_nr
+      ,check_dt
+      ,donor_nr
+      ,use_unapplied_fl
+      ,component_list
+      ,apply_excess_funds_cd
+      ,pos_sale_id
+      ,pos_ofc_id
+      ,pos_cust_recpt_nr
+      ,pos_consultant_id
+      ,pos_comment
+      ,cc_first_name
+      ,cc_middle_name
+      ,cc_last_name
+      ,cc_street
+      ,cc_zip
+      ,ach_bank_name
+      ,ach_bank_account_type
+      ,ach_bank_account_name
+      ,ach_authorization_nr
+      ,ach_street
+      ,ach_city
+      ,ach_state
+      ,ach_zip
+      ,ach_email
+      ,transaction_id
+      ,cc_transaction_id
+      ,use_advance_pay_fl
+      ,auto_renew_fl
+      ,cc_reject_fl
+      ,ach_token
+      ,apply_payment_plan_first_fl
+      ,autorenewal_card_ky
+      ,cc_last_four
+      ,REPLACE(cc_state,CHR(124)) AS cc_state
+      ,REPLACE(cc_city,CHR(124)) AS cc_city
+      ,SYSDATE as adw_lake_insert_datetime
+      ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_batch_payment
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.batch_payment` (
+   BATCH_PAYMENT_KY                STRING,
+   PAYMENT_AT                      STRING,
+   PAYMENT_METHOD_CD               STRING,
+   PAYMENT_SOURCE_CD               STRING,
+   CC_TYPE_CD                      STRING,
+   CC_EXPIRATION_DT                STRING,
+   TRANSACTION_TYPE_CD             STRING,
+   CREATE_DT                       STRING,
+   BATCH_KY                        STRING,
+   REASON_CD                       STRING,
+   MEMBERSHIP_ID                   STRING,
+   MEMBERSHIP_KY                   STRING,
+   PAID_BY_CD                      STRING,
+   DONOR_KY                        STRING,
+   CC_AUTHORIZATION_NR             STRING,
+   ERROR_TEXT                      STRING,
+   LAST_UPD_DT                     STRING,
+   ADJUSTMENT_DESCRIPTION_CD       STRING,
+   POST_COMPLETED_FL               STRING,
+   POST_DT                         STRING,
+   BILL_KY                         STRING,
+   CHECK_NR                        STRING,
+   CHECK_DT                        STRING,
+   DONOR_NR                        STRING,
+   USE_UNAPPLIED_FL                STRING,
+   COMPONENT_LIST                  STRING,
+   APPLY_EXCESS_FUNDS_CD           STRING,
+   POS_SALE_ID                     STRING,
+   POS_OFC_ID                      STRING,
+   POS_CUST_RECPT_NR               STRING,
+   POS_CONSULTANT_ID               STRING,
+   POS_COMMENT                     STRING,
+   CC_FIRST_NAME                   STRING,
+   CC_MIDDLE_NAME                  STRING,
+   CC_LAST_NAME                    STRING,
+   CC_STREET                       STRING,
+   CC_ZIP                          STRING,
+   ACH_BANK_NAME                   STRING,
+   ACH_BANK_ACCOUNT_TYPE           STRING,
+   ACH_BANK_ACCOUNT_NAME           STRING,
+   ACH_AUTHORIZATION_NR            STRING,
+   ACH_STREET                      STRING,
+   ACH_CITY                        STRING,
+   ACH_STATE                       STRING,
+   ACH_ZIP                         STRING,
+   ACH_EMAIL                       STRING,
+   TRANSACTION_ID                  STRING,
+   CC_TRANSACTION_ID               STRING,
+   USE_ADVANCE_PAY_FL              STRING,
+   AUTO_RENEW_FL                   STRING,
+   CC_REJECT_FL                    STRING,
+   ACH_TOKEN                       STRING,
+   APPLY_PAYMENT_PLAN_FIRST_FL     STRING,
+   AUTORENEWAL_CARD_KY             STRING,
+   CC_LAST_FOUR                    STRING,
+   CC_STATE                        STRING,
+   CC_CITY                         STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64)
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;
+

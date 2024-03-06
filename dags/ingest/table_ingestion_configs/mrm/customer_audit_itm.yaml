@@ -1,0 +1,36 @@
+database_source: mrm
+dataset_name: mrm
+table_name: customer_audit_itm
+hwm_column: change_time
+split_by_column: customer_audit_id
+num_mappers: 3
+target_dir: gs://adw-lake-mrm-{ENV}/customer_audit_itm/source/{{{{ ds }}}}
+
+query: >-
+  select
+  customer_audit_id,
+  name,
+  from_value,
+  to_value,
+  customer_audit.change_time as change_time,
+  CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+  {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.customer_audit_itm customer_audit_itm
+  left outer join (
+      select customer_audit_id as customer_audit_id1, change_time
+      from [{db_name}].dbo.customer_audit )customer_audit  
+    on customer_audit.customer_audit_id1=customer_audit_itm.customer_audit_id
+  where $CONDITIONS
+  
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mrm.customer_audit_itm`(
+  customer_audit_id STRING ,
+  name              STRING ,
+  from_value        STRING ,
+  to_value          STRING ,
+  change_time                   STRING ,
+  adw_lake_insert_datetime      DATETIME,
+  adw_lake_insert_batch_number  INT64)
+  PARTITION BY DATE(_PARTITIONTIME);

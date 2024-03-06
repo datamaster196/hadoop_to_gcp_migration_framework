@@ -1,0 +1,1 @@
+bq query --nouse_legacy_sql 'DROP TABLE `adw-dev.adw.dim_aca_office`'

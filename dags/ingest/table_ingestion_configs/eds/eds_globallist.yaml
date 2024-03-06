@@ -1,0 +1,43 @@
+database_source: epic
+dataset_name: epic
+table_name: globallist
+hwm_column:
+split_by_column:
+num_mappers: 4
+target_dir: gs://adw-lake-eds-epic-{ENV}/globallist_hist/source/{{{{ ds }}}}
+
+
+query: >-
+  SELECT id,
+        loginid,
+        email,
+        extention,
+        location,
+        displayname,
+        lastname,
+        firstname,
+        title,
+        flex_id,
+        CURRENT_TIMESTAMP AS adw_lake_insert_datetime,
+        {{{{ dag_run.id }}}}    AS adw_lake_insert_batch_number
+  FROM   [{db_name}].dbo.eds_globallist
+  where active_indic = CHAR(89) and $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.globallist` (
+     id                           INT64,
+     loginid                      STRING,
+     email                        STRING,
+     extention                    STRING,
+     location                     STRING,
+     displayname                  STRING,
+     lastname                     STRING,
+     firstname                    STRING,
+     title                        STRING,
+     flex_id                      STRING,
+     adw_lake_insert_datetime     DATETIME,
+     adw_lake_insert_batch_number INT64
+      )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

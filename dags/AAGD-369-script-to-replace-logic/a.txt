@@ -1,0 +1,53 @@
+On branch feature/AAGD-317
+Your branch is up-to-date with 'origin/feature/AAGD-317'.
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   ../sql/dml/integration/historical/ContactMarketMagnifier/contact_market_magnifier_contact_merge.sql
+	modified:   ../sql/dml/integration/historical/ContactMarketMagnifier/contact_market_magnifier_name_bridge.sql
+	modified:   ../sql/dml/integration/historical/ContactMarketMagnifier/contact_market_magnifier_name_merge.sql
+	modified:   ../sql/dml/integration/historical/contact_info_d3/query_d3_contact_merge.sql
+	modified:   ../sql/dml/integration/historical/contact_info_d3/query_d3_name_bridge_stage.sql
+	modified:   ../sql/dml/integration/historical/contact_info_d3/query_d3_name_merge.sql
+	modified:   ../sql/dml/integration/historical/contact_info_epic/contact_info_epic_contact_merge.sql
+	modified:   ../sql/dml/integration/historical/contact_info_epic/contact_info_epic_name_bridge.sql
+	modified:   ../sql/dml/integration/historical/contact_info_epic/contact_info_epic_name_merge.sql
+	modified:   ../sql/dml/integration/historical/contact_info_mzp/query_mzp_contact_merge.sql
+	modified:   ../sql/dml/integration/historical/contact_info_mzp/query_mzp_name_bridge_stage.sql
+	modified:   ../sql/dml/integration/historical/contact_info_mzp/query_mzp_name_merge.sql
+	modified:   ../sql/dml/integration/historical/dim_aca_office/dim_aca_office.sql
+	modified:   ../sql/dml/integration/historical/dim_aca_office/mzp_aca_office_work_type_2_hist.sql
+	modified:   ../sql/dml/integration/historical/dim_member/dim_member.sql
+	modified:   ../sql/dml/integration/historical/dim_member/mzp_member_work_transformed.sql
+	modified:   ../sql/dml/integration/historical/sales_agent_activity/mzp_sales_agent_activity_work_transformed.sql
+	modified:   ../sql/dml/integration/historical/sales_agent_activity/sales_agent_activity.sql
+	modified:   ../sql/dml/integration/incremental/ContactMarketMagnifier/contact_market_magnifier_contact_merge.sql
+	modified:   ../sql/dml/integration/incremental/ContactMarketMagnifier/contact_market_magnifier_name_bridge.sql
+	modified:   ../sql/dml/integration/incremental/ContactMarketMagnifier/contact_market_magnifier_name_merge.sql
+	modified:   ../sql/dml/integration/incremental/contact_info_d3/query_d3_contact_merge.sql
+	modified:   ../sql/dml/integration/incremental/contact_info_d3/query_d3_name_bridge_stage.sql
+	modified:   ../sql/dml/integration/incremental/contact_info_d3/query_d3_name_merge.sql
+	modified:   ../sql/dml/integration/incremental/contact_info_epic/contact_info_epic_contact_merge.sql
+	modified:   ../sql/dml/integration/incremental/contact_info_epic/contact_info_epic_name_bridge.sql
+	modified:   ../sql/dml/integration/incremental/contact_info_epic/contact_info_epic_name_merge.sql
+	modified:   ../sql/dml/integration/incremental/contact_info_mzp/query_mzp_contact_merge.sql
+	modified:   ../sql/dml/integration/incremental/contact_info_mzp/query_mzp_name_bridge_stage.sql
+	modified:   ../sql/dml/integration/incremental/contact_info_mzp/query_mzp_name_merge.sql
+	modified:   ../sql/dml/integration/incremental/dim_aca_office/dim_aca_office.sql
+	modified:   ../sql/dml/integration/incremental/dim_aca_office/mzp_aca_office_work_stage.sql
+	modified:   ../sql/dml/integration/incremental/dim_member/dim_member.sql
+	modified:   ../sql/dml/integration/incremental/dim_member/mzp_member_work_stage.sql
+	modified:   ../sql/dml/integration/incremental/dim_member/mzp_member_work_transformed.sql
+	modified:   ../sql/dml/integration/incremental/sales_agent_activity/mzp_sales_agent_activity_work_stage.sql
+	modified:   ../sql/dml/integration/incremental/sales_agent_activity/mzp_sales_agent_activity_work_transformed.sql
+	modified:   ../sql/dml/integration/incremental/sales_agent_activity/sales_agent_activity.sql
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	a.txt
+	file_temp.sql
+	sed_table_name.script
+
+no changes added to commit (use "git add" and/or "git commit -a")

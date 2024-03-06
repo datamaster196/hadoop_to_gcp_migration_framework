@@ -1,0 +1,138 @@
+database_source: epic
+dataset_name: epic
+table_name: contactname
+hwm_column: updateddate
+split_by_column: updateddate
+num_mappers: 6
+target_dir: gs://adw-lake-eds-epic-{ENV}/contactname_hist/source/{{{{ ds }}}}
+
+
+query: >-
+  select
+  UniqContactName
+  ,UniqFixedContactName
+  ,UniqEntity
+  ,LkPrefix
+  ,REPLACE(REPLACE(REPLACE(FullName, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as FullName
+  ,REPLACE(REPLACE(REPLACE(FirstName, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as FirstName
+  ,REPLACE(REPLACE(REPLACE(MiddleName, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as MiddleName
+  ,REPLACE(REPLACE(REPLACE(LastName, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as LastName
+  ,REPLACE(REPLACE(REPLACE(LkSuffix, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as LkSuffix
+  ,REPLACE(REPLACE(REPLACE(DescriptionOf, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as DescriptionOf
+  ,REPLACE(REPLACE(REPLACE(Title, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as Title
+  ,REPLACE(REPLACE(REPLACE(Department, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as Department
+  ,UniqContactAddressMain
+  ,UniqContactAddressEmployer
+  ,UniqContactNumberMain
+  ,UniqContactNumberEmailMain
+  ,ContactMethodCode
+  ,InformalHeading
+  ,FormalHeading
+  ,BirthDate
+  ,GenderCode
+  ,MaritalStatusCode
+  ,RelationToInsuredCode
+  ,REPLACE(REPLACE(REPLACE(comments, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as comments
+  ,BillingDeliveryCode
+  ,ServicingDeliveryCode
+  ,MarketingDeliveryCode
+  ,CategoryCode
+  ,REPLACE(REPLACE(REPLACE(EmployerName, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as EmployerName
+  ,LkOccupation
+  ,HiredDate
+  ,YearsEmployed
+  ,YearsPriorEmployer
+  ,CdNAICSCode
+  ,CdSICCode
+  ,BusinessTypeCode
+  ,BusinessTypeOtherDesc
+  ,NumberMembersManagers
+  ,BusinessStartedDate
+  ,NatureOfBusinessCode
+  ,NatureOfBusinessOtherDesc
+  ,DriverTypeCode
+  ,GoodStudentCode
+  ,DriverTrainingCode
+  ,AccidentPreventionCourseDate
+  ,CommercialExperienceBeganDate
+  ,MatchClientNameOf
+  ,InsertedByCode
+  ,InsertedDate
+  ,UpdatedByCode
+  ,UpdatedDate
+  ,Flags
+  ,ts
+  ,IBCCode
+  ,UniqStaticLanguageResourceLanguage
+  ,CdCountryCodeSIC
+  ,PersonID
+  , CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.eds_epic_contactname
+  where active_indic = CHAR(78) and $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.contactname`
+  (uniqcontactname                          STRING,
+      uniqfixedcontactname                  STRING,
+      uniqentity                            STRING,
+      lkprefix                              STRING,
+      fullname                              STRING,
+      firstname                             STRING,
+      middlename                            STRING,
+      lastname                              STRING,
+      lksuffix                              STRING,
+      descriptionof                         STRING,
+      title                                 STRING,
+      department                            STRING,
+      uniqcontactaddressmain                STRING,
+      uniqcontactaddressemployer            STRING,
+      uniqcontactnumbermain                 STRING,
+      uniqcontactnumberemailmain            STRING,
+      contactmethodcode                     STRING,
+      informalheading                       STRING,
+      formalheading                         STRING,
+      birthdate                             STRING,
+      gendercode                            STRING,
+      maritalstatuscode                     STRING,
+      relationtoinsuredcode                 STRING,
+      comments                              STRING,
+      billingdeliverycode                   STRING,
+      servicingdeliverycode                 STRING,
+      marketingdeliverycode                 STRING,
+      categorycode                          STRING,
+      employername                          STRING,
+      lkoccupation                          STRING,
+      hireddate                             STRING,
+      yearsemployed                         STRING,
+      yearsprioremployer                    STRING,
+      cdnaicscode                           STRING,
+      cdsiccode                             STRING,
+      businesstypecode                      STRING,
+      businesstypeotherdesc                 STRING,
+      numbermembersmanagers                 STRING,
+      businessstarteddate                   STRING,
+      natureofbusinesscode                  STRING,
+      natureofbusinessotherdesc             STRING,
+      drivertypecode                        STRING,
+      goodstudentcode                       STRING,
+      drivertrainingcode                    STRING,
+      accidentpreventioncoursedate          STRING,
+      commercialexperiencebegandate         STRING,
+      matchclientnameof                     STRING,
+      insertedbycode                        STRING,
+      inserteddate                          STRING,
+      updatedbycode                         STRING,
+      updateddate                           STRING,
+      flags                                 STRING,
+      ts                                    STRING,
+      ibccode                               STRING,
+      uniqstaticlanguageresourcelanguage    STRING,
+      cdcountrycodesic                      STRING,
+      personid                              STRING,
+      adw_lake_insert_datetime              STRING,
+      adw_lake_insert_batch_number          STRING
+      )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

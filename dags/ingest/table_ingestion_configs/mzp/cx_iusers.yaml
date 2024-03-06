@@ -1,0 +1,61 @@
+database_source: mzp
+dataset_name: mzp
+table_name: cx_iusers
+hwm_column:
+split_by_column: user_id
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/cx_iusers/source/{{{{ ds }}}}
+
+query: >-
+  select
+  USER_ID
+  ,EMAIL
+  ,DATE_ENTERED
+  ,LAST_LOGIN
+  ,FNAME
+  ,LNAME
+  ,MENUOPTION
+  ,USERNAME
+  ,DELETED_DATE
+  ,PASSWORD_SET_DATE
+  ,FAILED_LOGINS
+  ,DISABLED
+  ,PASSWORD_EXPIRED
+  ,MNAME
+  ,PASSWORD_CHANGEABLE
+  ,PASSWORD_NEVER_EXPIRES
+  ,DISABLE_ON_DATE
+  ,DELETED
+  ,LANG_CODE
+  , SYSDATE as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.cx_iusers
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.cx_iusers` (
+  USER_ID                         STRING          NOT NULL,
+  EMAIL                           STRING,
+  DATE_ENTERED                    STRING,
+  LAST_LOGIN                      STRING,
+  FNAME                           STRING,
+  LNAME                           STRING,
+  MENUOPTION                      STRING,
+  USERNAME                        STRING,
+  DELETED_DATE                    STRING,
+  PASSWORD_SET_DATE               STRING,
+  FAILED_LOGINS                   STRING,
+  DISABLED                        STRING,
+  PASSWORD_EXPIRED                STRING,
+  MNAME                           STRING,
+  PASSWORD_CHANGEABLE             STRING,
+  PASSWORD_NEVER_EXPIRES          STRING,
+  DISABLE_ON_DATE                 STRING,
+  DELETED                         STRING,
+  LANG_CODE                       STRING,
+  adw_lake_insert_datetime        DATETIME,
+  adw_lake_insert_batch_number    INT64
+  )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

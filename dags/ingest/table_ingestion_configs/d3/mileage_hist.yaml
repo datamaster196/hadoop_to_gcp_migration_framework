@@ -1,0 +1,57 @@
+database_source: d3
+dataset_name: d3
+table_name: mileage_hist
+hwm_column: sc_dt
+split_by_column: to_number(to_char(sc_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-d3-{ENV}/mileage_hist/source/{{{{ ds }}}}
+
+query: >-
+  SELECT
+      comm_ctr_id        ,
+      sc_dt            ,
+      sc_id            ,
+      miles_er_disp     ,
+      miles_tw_disp     ,
+      miles_er_calc     ,
+      miles_tw_calc     ,
+      miles_er_cpms     ,
+      miles_tw_cpms     ,
+      adjusted_er      ,
+      adjusted_tw      ,
+      er_tolerance      ,
+      tw_tolerance      ,
+      REPLACE(REPLACE(REPLACE(mileage_comment, CHR(10)), CHR(13)), CHR(124)) as mileage_comment   ,
+      er_lat            ,
+      er_long           ,
+      mileage_calc_type ,
+      SYSDATE as adw_lake_insert_datetime,
+      {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  FROM
+    aca_ers_hist.MILEAGE_HIST
+  WHERE
+    $CONDITIONS
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.d3.mileage_hist` (
+      comm_ctr_id       string not null,
+        sc_dt             string not null,
+        sc_id             string not null,
+        miles_er_disp     string,
+        miles_tw_disp     string,
+        miles_er_calc     string,
+        miles_tw_calc     string,
+        miles_er_cpms     string,
+        miles_tw_cpms     string,
+        adjusted_er       string not null,
+        adjusted_tw       string not null,
+        er_tolerance      string,
+        tw_tolerance      string,
+        mileage_comment   string,
+        er_lat            string,
+        er_long           string,
+        mileage_calc_type string,
+        adw_lake_insert_datetime     datetime,
+        adw_lake_insert_batch_number int64
+    )
+    PARTITION BY DATE(_PARTITIONTIME)
+    ;

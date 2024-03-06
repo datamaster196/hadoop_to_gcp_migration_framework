@@ -1,0 +1,272 @@
+database_source: eds
+dataset_name: mzp
+table_name: membership
+hwm_column: last_upd_dt
+split_by_column: membership_ky
+num_mappers: 6
+target_dir: gs://adw-lake-eds-mzp-{ENV}/membership_hist/source/{{{{ ds }}}}
+
+
+query: >-
+  select
+  membership_ky
+  ,membership_id
+  ,status
+  ,billing_cd
+  ,status_dt
+  ,cancel_dt
+  ,billing_category_cd
+  ,dues_cost_at
+  ,dues_adjustment_at
+  ,unapplied_at
+  ,refund_at
+  ,credits_at
+  ,advance_pay_at
+  ,branch_ky
+  ,incentive_type_cd
+  ,incentive_fulfillment_dt
+  ,drop_card_rqt_dt
+  ,drop_card_prt_dt
+  ,expiration_extn_mths
+  ,future_cancel_fl
+  ,future_cancel_dt
+  ,replace(address_line1,CHAR(124),CHAR(32)) as address_line1
+  ,address_line2
+  ,replace(city,CHAR(124),CHAR(32)) as city
+  ,state
+  ,zip
+  ,country
+  ,oot_fl
+  ,address_change_dt
+  ,bill_addr_ind
+  ,temp_addr_ind
+  ,unlisted_fl
+  ,phone
+  ,previous_membership_id
+  ,previous_club_cd
+  ,send_card_to
+  ,send_bill_to
+  ,gift_type_cd
+  ,last_upd_dt
+  ,sponsor_ky
+  ,split_fl
+  ,transfer_club_cd
+  ,transfer_reason_cd
+  ,transfer_dt
+  ,other_phone_fl
+  ,dont_solicit_fl
+  ,bad_address_fl
+  ,dont_send_pub_fl
+  ,fleet_account_fl
+  ,attention_line
+  ,driver_ct
+  ,market_tracking_cd
+  ,recommended_by_id
+  ,donor_renewal_fl
+  ,gift_kit_given_fl
+  ,hold_bill_fl
+  ,safety_fund_applied_fl
+  ,lone_primary_dt
+  ,lone_primary_ct
+  ,roll_on_fl
+  ,delivery_route
+  ,no_safety_fund_fl
+  ,hold_bill_comment
+  ,adm_d2000_update_dt
+  ,salvage_fl
+  ,no_refunds_fl
+  ,referred_by
+  ,referred_by_membership_ky
+  ,referred_by_user_id
+  ,lead_ky
+  ,coverage_level_cd
+  ,flex_string_1
+  ,flex_string_2
+  ,flex_string_3
+  ,flex_string_4
+  ,flex_string_5
+  ,flex_string_6
+  ,flex_string_7
+  ,flex_string_8
+  ,flex_string_9
+  ,flex_string_10
+  ,flex_number_1
+  ,flex_number_2
+  ,flex_number_3
+  ,flex_number_4
+  ,flex_number_5
+  ,flex_date_1
+  ,flex_date_2
+  ,flex_date_3
+  ,flex_date_4
+  ,flex_date_5
+  ,group_cd
+  ,coverage_level_ky
+  ,membership_type_cd
+  ,excluded_unapplied_at
+  ,excluded_reason_cd
+  ,billing_split_cd
+  ,salvage_detail_ky
+  ,mrm_extract_update_dt
+  ,wk_address_1
+  ,wk_address_2
+  ,wk_city
+  ,wk_state
+  ,wk_zip
+  ,wk_country
+  ,ebill_email
+  ,ebill_fl
+  ,ebill_last_upd_dt
+  ,terms_fl
+  ,terms_last_upd_dt
+  ,segmentation_cd
+  ,segmentation_setup_ky
+  ,address_validation_code
+  ,activation_dt
+  ,promo_code
+  ,tier_ky
+  ,opp_fl
+  ,carryover_at
+  ,pp_fc_fl
+  ,pp_fc_dt
+  ,phone_type
+  ,switch_primary_fl
+  ,suppress_bill_fl
+  ,offer_end_dt
+  , CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.eds_membership
+  where active_indic = CHAR(78) and $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.membership` (
+    membership_ky				          STRING,
+    membership_id				          STRING,
+    status					              STRING,
+    billing_cd				            STRING,
+    status_dt				              STRING,
+    cancel_dt				              STRING,
+    billing_category_cd			      STRING,
+    dues_cost_at				          STRING,
+    dues_adjustment_at			      STRING,
+    unapplied_at				          STRING,
+    refund_at				              STRING,
+    credits_at				            STRING,
+    advance_pay_at				        STRING,
+    branch_ky				              STRING,
+    incentive_type_cd			        STRING,
+    incentive_fulfillment_dt		  STRING,
+    drop_card_rqt_dt			        STRING,
+    drop_card_prt_dt			        STRING,
+    expiration_extn_mths			    STRING,
+    future_cancel_fl			        STRING,
+    future_cancel_dt			        STRING,
+    address_line1				          STRING,
+    address_line2				          STRING,
+    city					                STRING,
+    state					                STRING,
+    zip					                  STRING,
+    country					              STRING,
+    oot_fl					              STRING,
+    address_change_dt			        STRING,
+    bill_addr_ind				          STRING,
+    temp_addr_ind				          STRING,
+    unlisted_fl				            STRING,
+    phone					                STRING,
+    previous_membership_id			  STRING,
+    previous_club_cd			        STRING,
+    send_card_to				          STRING,
+    send_bill_to				          STRING,
+    gift_type_cd				          STRING,
+    last_upd_dt				            STRING,
+    sponsor_ky				            STRING,
+    split_fl				              STRING,
+    transfer_club_cd			        STRING,
+    transfer_reason_cd			      STRING,
+    transfer_dt				            STRING,
+    other_phone_fl				        STRING,
+    dont_solicit_fl				        STRING,
+    bad_address_fl				        STRING,
+    dont_send_pub_fl			        STRING,
+    fleet_account_fl			        STRING,
+    attention_line				        STRING,
+    driver_ct				              STRING,
+    market_tracking_cd			      STRING,
+    recommended_by_id			        STRING,
+    donor_renewal_fl			        STRING,
+    gift_kit_given_fl			        STRING,
+    hold_bill_fl				          STRING,
+    safety_fund_applied_fl			  STRING,
+    lone_primary_dt				        STRING,
+    lone_primary_ct				        STRING,
+    roll_on_fl				            STRING,
+    delivery_route				        STRING,
+    no_safety_fund_fl			        STRING,
+    hold_bill_comment			        STRING,
+    adm_d2000_update_dt		  	    STRING,
+    salvage_fl				            STRING,
+    no_refunds_fl				          STRING,
+    referred_by				            STRING,
+    referred_by_membership_ky		  STRING,
+    referred_by_user_id			      STRING,
+    lead_ky					              STRING,
+    coverage_level_cd			        STRING,
+    flex_string_1				          STRING,
+    flex_string_2				          STRING,
+    flex_string_3				          STRING,
+    flex_string_4				          STRING,
+    flex_string_5				          STRING,
+    flex_string_6				          STRING,
+    flex_string_7				          STRING,
+    flex_string_8				          STRING,
+    flex_string_9				          STRING,
+    flex_string_10				        STRING,
+    flex_number_1				          STRING,
+    flex_number_2				          STRING,
+    flex_number_3				          STRING,
+    flex_number_4				          STRING,
+    flex_number_5				          STRING,
+    flex_date_1				            STRING,
+    flex_date_2				            STRING,
+    flex_date_3				            STRING,
+    flex_date_4				            STRING,
+    flex_date_5				            STRING,
+    group_cd				              STRING,
+    coverage_level_ky			        STRING,
+    membership_type_cd			      STRING,
+    excluded_unapplied_at			    STRING,
+    excluded_reason_cd			      STRING,
+    billing_split_cd			        STRING,
+    salvage_detail_ky			        STRING,
+    mrm_extract_update_dt			    STRING,
+    wk_address_1				          STRING,
+    wk_address_2				          STRING,
+    wk_city					              STRING,
+    wk_state				              STRING,
+    wk_zip					              STRING,
+    wk_country				            STRING,
+    ebill_email				            STRING,
+    ebill_fl				              STRING,
+    ebill_last_upd_dt			        STRING,
+    terms_fl				              STRING,
+    terms_last_upd_dt			        STRING,
+    segmentation_cd				        STRING,
+    segmentation_setup_ky			    STRING,
+    address_validation_code			  STRING,
+    activation_dt				          STRING,
+    promo_code				            STRING,
+    tier_ky					              STRING,
+    opp_fl                          STRING,
+    carryover_at                    STRING,
+    pp_fc_fl                        STRING,
+    pp_fc_dt                        STRING,
+    phone_type                      STRING,
+    switch_primary_fl               STRING,
+    suppress_bill_fl                STRING,
+    offer_end_dt                    STRING,
+    adw_lake_insert_datetime             STRING,
+    adw_lake_insert_batch_number         STRING
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

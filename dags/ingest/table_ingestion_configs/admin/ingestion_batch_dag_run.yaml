@@ -1,0 +1,15 @@
+dataset_name: admin
+table_name: ingestion_batch_dag_run
+
+ddl: >-
+  create table if not exists `{INGESTION_PROJECT}.admin.ingestion_batch_dag_run` (
+  id                INT64,
+  dag_id            STRING,
+  execution_date    TIMESTAMP,
+  state             STRING,
+  run_id            STRING,
+  external_trigger  STRING,
+  conf              STRING,
+  end_date          TIMESTAMP,
+  start_date        TIMESTAMP
+  )

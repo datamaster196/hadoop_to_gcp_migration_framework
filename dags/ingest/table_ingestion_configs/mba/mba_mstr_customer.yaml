@@ -1,0 +1,76 @@
+database_source: mba
+dataset_name: mba
+table_name: mstr_customer
+hwm_column: updt_dttm
+split_by_column: mstr_customer_id
+num_mappers: 6
+target_dir: gs://adw-lake-mba-{ENV}/mstr_customer/source/{{{{ ds }}}}
+
+
+query: >-
+  select
+  mstr_customer_id
+  ,eql2_mstr_customer_id
+  ,REPLACE(REPLACE(REPLACE(salutation,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as salutation
+  ,REPLACE(REPLACE(REPLACE(first_nm,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as first_nm
+  ,REPLACE(REPLACE(REPLACE(middle_nm,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as middle_nm
+  ,REPLACE(REPLACE(REPLACE(last_nm,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as last_nm
+  ,REPLACE(REPLACE(REPLACE(family_suffix,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as family_suffix
+  ,REPLACE(REPLACE(REPLACE(prof_suffix,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as prof_suffix
+  ,REPLACE(REPLACE(REPLACE(address_line1,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as address_line1
+  ,REPLACE(REPLACE(REPLACE(address_line2,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as address_line2
+  ,REPLACE(REPLACE(REPLACE(address_line3,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as address_line3
+  ,REPLACE(REPLACE(REPLACE(city,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as city
+  ,REPLACE(REPLACE(REPLACE(state_cd,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as state_cd
+  ,REPLACE(REPLACE(REPLACE(zip_cd,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as zip_cd
+  ,mstr_address_id
+  ,member_ky
+  ,membership_ky
+  ,mbr_status_cd
+  ,dob
+  ,gndr
+  ,REPLACE(REPLACE(REPLACE(phone,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as phone
+  ,REPLACE(REPLACE(REPLACE(email,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as email
+  ,REPLACE(REPLACE(REPLACE(mba_subsys_cd,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as mba_subsys_cd
+  ,REPLACE(REPLACE(REPLACE(subsys_customer_cd,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as subsys_customer_cd
+  ,REPLACE(REPLACE(REPLACE(eql2_match_type_cd,CHAR(13),CHAR(32)),CHAR(10),CHAR(32)),CHAR(124),CHAR(32)) as eql2_match_type_cd
+  ,updt_dttm
+  , CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.mstr_customer
+  where mstr_customer_id > 0 and $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mba.mstr_customer` (
+    mstr_customer_id				     STRING,
+    eql2_mstr_customer_id				 STRING,
+    salutation					         STRING,
+    first_nm				             STRING,
+    middle_nm				             STRING,
+    last_nm				                 STRING,
+    family_suffix			             STRING,
+    prof_suffix				             STRING,
+    address_line1			             STRING,
+    address_line2				         STRING,
+    address_line3				         STRING,
+    city				                 STRING,
+    state_cd				             STRING,
+    zip_cd				                 STRING,
+    mstr_address_id			             STRING,
+    member_ky		                     STRING,
+    membership_ky			             STRING,
+    mbr_status_cd			             STRING,
+    dob			                         STRING,
+    gndr			                     STRING,
+    phone			                     STRING,
+    email				                 STRING,
+    mba_subsys_cd				         STRING,
+    subsys_customer_cd					 STRING,
+    eql2_match_type_cd					 STRING,
+    updt_dttm					         STRING,
+    adw_lake_insert_datetime             DATETIME,
+    adw_lake_insert_batch_number         INT64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

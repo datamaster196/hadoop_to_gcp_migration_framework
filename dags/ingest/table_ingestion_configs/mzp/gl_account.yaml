@@ -1,0 +1,31 @@
+database_source: mzp
+dataset_name: mzp
+table_name: gl_account
+hwm_column: 
+split_by_column: gl_account_ky
+num_mappers: 2
+target_dir: gs://adw-lake-mzp-{ENV}/gl_account/source/{{{{ ds }}}}
+
+query: >-
+   select
+    gl_account_ky,
+    REPLACE(REPLACE(REPLACE(gl_descr, CHR(10)), CHR(13)), CHR(124)) AS gl_descr,
+    gl_acct_number,
+    branch_ky,
+    gl_group_cd,
+    SYSDATE as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+    from mz_plus_212.mz_gl_account
+    where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.gl_account` (
+   GL_ACCOUNT_KY                   STRING,
+   GL_DESCR                        STRING,
+   GL_ACCT_NUMBER                  STRING,
+   BRANCH_KY                       STRING,
+   GL_GROUP_CD                     STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64)
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

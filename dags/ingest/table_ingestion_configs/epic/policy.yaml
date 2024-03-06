@@ -1,0 +1,97 @@
+database_source: epic
+dataset_name: epic
+table_name: policy
+hwm_column: UpdatedDate
+split_by_column: UpdatedDate
+num_mappers: 6
+target_dir: gs://adw-lake-epic-{ENV}/policy/source/{{{{ ds }}}}
+
+query: >-
+  select * from  (
+  SELECT
+  UniqPolicy
+  ,UniqOriginalPolicy
+  ,UniqEntity
+  ,UniqAgency
+  ,UniqBranch
+  ,UniqDepartment
+  ,DescriptionOf
+  ,UniqCdPolicyLineType
+  ,PolicyNumber
+  ,EffectiveDate
+  ,ExpirationDate
+  ,ContractedExpirationDate
+  ,BilledCommission
+  ,AnnualizedCommission
+  ,EstimatedCommission
+  ,BilledPremium
+  ,AnnualizedPremium
+  ,EstimatedPremium
+  ,InsertedByCode
+  ,InsertedDate
+  ,UpdatedByCode
+  ,coalesce(updateddate,ts,inserteddate) as UpdatedDate
+  ,Flags
+  ,ts
+  ,LastDownloadedPremium
+  ,StandardsBodyCode
+  ,EstimatedMonthlyPremium
+  ,EstimatedMonthlyCommission
+  ,MigratedBilledPremium
+  ,MigratedBilledCommission
+  ,PolicyId
+  ,UniqLkPolicySource
+  ,UniqCdRenewalStage
+  ,RenewalPremium
+  ,QuoteID
+  ,RenewalInviteReceivedDate
+  , CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  FROM
+  [{db_name}].dbo.policy) a
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.policy` (
+      uniqpolicy                    STRING,
+      uniqoriginalpolicy            STRING,
+      uniqentity                    STRING,
+      uniqagency                    STRING,
+      uniqbranch                    STRING,
+      uniqdepartment                STRING,
+      descriptionof                 STRING,
+      uniqcdpolicylinetype          STRING,
+      policynumber                  STRING,
+      effectivedate                 STRING,
+      expirationdate                STRING,
+      contractedexpirationdate      STRING,
+      billedcommission              STRING,
+      annualizedcommission          STRING,
+      estimatedcommission           STRING,
+      billedpremium                 STRING,
+      annualizedpremium             STRING,
+      estimatedpremium              STRING,
+      insertedbycode                STRING,
+      inserteddate                  STRING,
+      updatedbycode                 STRING,
+      updateddate                   STRING,
+      flags                         STRING,
+      ts                            STRING,
+      lastdownloadedpremium         STRING,
+      standardsbodycode             STRING,
+      estimatedmonthlypremium       STRING,
+      estimatedmonthlycommission    STRING,
+      migratedbilledpremium         STRING,
+      migratedbilledcommission      STRING,
+      policyid                      STRING,
+      uniqlkpolicysource            STRING,
+      uniqcdrenewalstage            STRING,
+      renewalpremium                STRING,
+      quoteid                       STRING,
+      renewalinvitereceiveddate     STRING,
+      adw_lake_insert_datetime      DATETIME,
+      adw_lake_insert_batch_number  INT64
+  )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

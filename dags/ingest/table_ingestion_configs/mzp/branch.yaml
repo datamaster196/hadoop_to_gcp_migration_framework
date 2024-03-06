@@ -1,0 +1,69 @@
+database_source: mzp
+dataset_name: mzp
+table_name: branch
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 1
+target_dir: gs://adw-lake-mzp-{ENV}/branch/source/{{{{ ds }}}}
+
+query: >-
+  select
+  branch_ky
+  , club_cd
+  , branch_cd
+  , branch_name
+  , address_line1
+  , address_line2
+  , city
+  , state
+  , zip
+  , phone
+  , last_upd_dt
+  , merchant_nr
+  , delivery_route
+  , pos_office
+  , region_cd
+  , oot_flag
+  , membership_flag
+  , division_ky
+  , budget_center_cd
+  , company_cd
+  , sub_company_cd
+  , consumer_id
+  , consumer_token
+  , SYSDATE as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_branch
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.branch` (
+    BRANCH_KY                       STRING,
+     CLUB_CD                         STRING,
+     BRANCH_CD                       STRING,
+     BRANCH_NAME                     STRING,
+     ADDRESS_LINE1                   STRING,
+     ADDRESS_LINE2                   STRING,
+     CITY                            STRING,
+     STATE                           STRING,
+     ZIP                             STRING,
+     PHONE                           STRING,
+     LAST_UPD_DT                     STRING,
+     MERCHANT_NR                     STRING,
+     DELIVERY_ROUTE                  STRING,
+     POS_OFFICE                      STRING,
+     REGION_CD                       STRING,
+     OOT_FLAG                        STRING,
+     MEMBERSHIP_FLAG                 STRING,
+     DIVISION_KY                     STRING,
+     BUDGET_CENTER_CD                STRING,
+     COMPANY_CD                      STRING,
+     SUB_COMPANY_CD                  STRING,
+     CONSUMER_ID                     STRING,
+     CONSUMER_TOKEN                  STRING,
+     adw_lake_insert_datetime        DATETIME,
+     adw_lake_insert_batch_number    INT64
+  )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;
+

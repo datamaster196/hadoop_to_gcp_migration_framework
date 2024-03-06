@@ -1,0 +1,76 @@
+database_source: mzp
+dataset_name: mzp
+table_name: retention
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/retention/source/{{{{ ds }}}}
+
+query: >-
+  select
+          retention_ky                     ,
+          membership_ky                   ,
+          interaction_tp                  ,
+          dup_cov_insd_fl                 ,
+          dup_cov_insd                    ,
+          dup_cov_mfr_fl                  ,
+          dup_cov_mfr                     ,
+          dup_cov_rap_fl                  ,
+          dup_cov_rap                     ,
+          payg_svce_fl                    ,
+          payg_svce                       ,
+          price_value_cost_fl             ,
+          svce_iss_roadside_fl            ,
+          svce_iss_other_fl               ,
+          svce_iss_other                  ,
+          none_mbr_declined_fl            ,
+          REPLACE(REPLACE(REPLACE(call_comments, CHR(10)), CHR(13)), CHR(124)) AS call_comments,
+          REPLACE(REPLACE(REPLACE(res_questions, CHR(10)), CHR(13)), CHR(124)) AS res_questions,
+          follow_up_fl                    ,
+          follow_up_dt                    ,
+          branch_ky                       ,
+          agent_id                        ,
+          last_upd_dt                     ,
+          status                          ,
+          create_dt                       ,
+          retained_dt                     ,
+          SYSDATE as adw_lake_insert_datetime,
+          {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_retention
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.retention` (
+   RETENTION_KY                    STRING         NOT NULL,
+   MEMBERSHIP_KY                   STRING         NOT NULL,
+   INTERACTION_TP                  STRING,
+   DUP_COV_INSD_FL                 STRING,
+   DUP_COV_INSD                    STRING,
+   DUP_COV_MFR_FL                  STRING,
+   DUP_COV_MFR                     STRING,
+   DUP_COV_RAP_FL                  STRING,
+   DUP_COV_RAP                     STRING,
+   PAYG_SVCE_FL                    STRING,
+   PAYG_SVCE                       STRING,
+   PRICE_VALUE_COST_FL             STRING,
+   SVCE_ISS_ROADSIDE_FL            STRING,
+   SVCE_ISS_OTHER_FL               STRING,
+   SVCE_ISS_OTHER                  STRING,
+   NONE_MBR_DECLINED_FL            STRING,
+   CALL_COMMENTS                   STRING,
+   RES_QUESTIONS                   STRING,
+   FOLLOW_UP_FL                    STRING,
+   FOLLOW_UP_DT                    STRING,
+   BRANCH_KY                       STRING,
+   AGENT_ID                        STRING,
+   LAST_UPD_DT                     STRING,
+   STATUS                          STRING,
+   CREATE_DT                       STRING,
+   RETAINED_DT                     STRING,
+   adw_lake_insert_datetime        DATETIME,
+   adw_lake_insert_batch_number    INT64
+      )
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;
+
+

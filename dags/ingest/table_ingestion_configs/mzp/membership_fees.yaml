@@ -1,0 +1,57 @@
+database_source: mzp
+dataset_name: mzp
+table_name: membership_fees
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 4
+target_dir: gs://adw-lake-mzp-{ENV}/membership_fees/source/{{{{ ds }}}}
+
+query: >-
+  select
+  membership_fees_ky,
+  membership_ky,
+  member_ky,
+  fee_type,
+  fee_dt,
+  fee_at,
+  paid_by_cd,
+  fee_applied_at,
+  waived_dt,
+  waived_by,
+  last_upd_dt,
+  donor_nr,
+  waived_fl,
+  waived_reason_cd,
+  counted_fl,
+  credential_history_ky,
+  status,
+  SYSDATE as adw_lake_insert_datetime,
+  {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_membership_fees
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.membership_fees` (
+    MEMBERSHIP_FEES_KY              STRING          NOT NULL,
+      MEMBERSHIP_KY                   STRING,
+      MEMBER_KY                       STRING,
+      FEE_TYPE                        STRING,
+      FEE_DT                          STRING,
+      FEE_AT                          STRING,
+      PAID_BY_CD                      STRING,
+      FEE_APPLIED_AT                  STRING,
+      WAIVED_DT                       STRING,
+      WAIVED_BY                       STRING,
+      LAST_UPD_DT                     STRING,
+      DONOR_NR                        STRING,
+      WAIVED_FL                       STRING,
+      WAIVED_REASON_CD                STRING,
+      COUNTED_FL                      STRING,
+      CREDENTIAL_HISTORY_KY           STRING,
+      STATUS                          STRING          NOT NULL,
+      adw_lake_insert_datetime        DATETIME,
+      adw_lake_insert_batch_number    INT64)
+    PARTITION BY DATE(_PARTITIONTIME)
+    ;
+
+

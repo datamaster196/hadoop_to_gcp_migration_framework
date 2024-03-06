@@ -1,0 +1,49 @@
+database_source: pos
+dataset_name: pos
+table_name: inv_dyn
+hwm_column:
+split_by_column:
+num_mappers: 1
+target_dir: gs://adw-lake-pos-{ENV}/inv_dyn/source/{{{{ ds }}}}
+
+query: >-
+    select
+    assoc_cd  ,
+    clb_cd  ,
+    inv_dyn_id  ,
+    inv_sku_id ,
+    inv_dyn_nr  ,
+    inv_dyn_desc  ,
+    status  ,
+    inv_dyn_list_prc  ,
+    inv_dyn_value  ,
+    inv_dyn_cost  ,
+    inv_dyn_mbr_prc  ,
+    inv_dyn_nonmbr_prc  ,
+    inv_dyn_emp_prc  ,
+    last_update  ,
+    CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+    from [{db_name}].dbo.inv_dyn
+    where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.pos.inv_dyn`(
+    assoc_cd String ,
+    clb_cd String ,
+    inv_dyn_id String ,
+    inv_sku_id String,
+    inv_dyn_nr String ,
+    inv_dyn_desc String ,
+    status String ,
+    inv_dyn_list_prc String ,
+    inv_dyn_value String ,
+    inv_dyn_cost String ,
+    inv_dyn_mbr_prc String ,
+    inv_dyn_nonmbr_prc String ,
+    inv_dyn_emp_prc String ,
+    last_update String ,
+    adw_lake_insert_datetime datetime ,
+    adw_lake_insert_batch_number int64
+    ) PARTITION BY DATE(_PARTITIONTIME);

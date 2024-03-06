@@ -1,0 +1,28 @@
+database_source: sfmc
+dataset_name: sfmc
+table_name: subscribers
+hwm_column:
+split_by_column:
+num_mappers: 1
+target_dir:
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.sfmc.subscribers` (
+    subscriberid					STRING,
+    dateundeliverable				STRING,
+    datejoined						STRING,
+    dateunsubscribed				STRING,
+    domain							STRING,
+    emailaddress					STRING,
+    bouncecount					    STRING,
+    subscriberkey				    STRING,
+    subscribertype					STRING,
+    status							STRING,
+    locale							STRING,
+    modifieddate					STRING,
+    adw_lake_insert_datetime        DATETIME,
+    adw_lake_insert_batch_number    INT64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

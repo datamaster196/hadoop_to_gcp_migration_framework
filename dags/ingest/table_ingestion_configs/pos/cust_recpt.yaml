@@ -1,0 +1,103 @@
+database_source: pos
+dataset_name: pos
+table_name: cust_recpt
+hwm_column: last_update
+split_by_column: last_update
+num_mappers: 6
+target_dir: gs://adw-lake-pos-{ENV}/cust_recpt/source/{{{{ ds }}}}
+
+query: >-
+    select
+    assoc_cd                      ,
+    clb_cd                        ,
+    ofc_id                        ,
+    sale_id                      ,
+    cust_recpt_nr                ,
+    cust_id                       ,
+    cust_vst_dt                   ,
+    sale_complete_dt              ,
+    ord_fulfillment_dt            ,
+    ord_fulfillment_st            ,
+    cust_typ_cd                   ,
+    cust_fst_nm                   ,
+    cust_lst_nm                   ,
+    cust_mid_init_nm              ,
+    cust_pymt_amt                 ,
+    cust_recpt_tot_sls_amt        ,
+    cust_recpt_tax_amt            ,
+    cust_recpt_subtot_amt         ,
+    cust_recpt_savings_amt        ,
+    shipping_amt                  ,
+    handling_amt                  ,
+    wkst_id                        ,
+    consultant_id                  ,
+    cust_recpt_void_ret_ind       ,
+    cnty_tax_amt                  ,
+    lcl_tax_amt                   ,
+    st_tax_amt                    ,
+    oth_tax_amt                   ,
+    upload_trans_nr               ,
+    ship_to_id                    ,
+    REPLACE(REPLACE(REPLACE(additional_info_txt, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as additional_info_txt,
+    last_update                    ,
+    suspecious                    ,
+    REPLACE(REPLACE(REPLACE(suspecious_note, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as suspecious_note,
+    cust_recpt_promotions_amt     ,
+    contact_object_id             ,
+    external_id                   ,
+    state_tax_percent             ,
+    county_tax_percent            ,
+    local_tax_percent             ,
+    other_tax_percent             ,
+    CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+    from [{db_name}].dbo.cust_recpt
+    where $CONDITIONS
+
+
+ddl: >-
+ CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.pos.cust_recpt`(
+      assoc_cd                      String,
+      clb_cd                        String,
+      ofc_id                        String,
+      sale_id                       String,
+      cust_recpt_nr                 String,
+      cust_id                       String,
+      cust_vst_dt                   String,
+      sale_complete_dt              String,
+      ord_fulfillment_dt            String,
+      ord_fulfillment_st            String,
+      cust_typ_cd                   String,
+      cust_fst_nm                   String,
+      cust_lst_nm                   String,
+      cust_mid_init_nm              String,
+      cust_pymt_amt                 String,
+      cust_recpt_tot_sls_amt        String,
+      cust_recpt_tax_amt            String,
+      cust_recpt_subtot_amt         String,
+      cust_recpt_savings_amt        String,
+      shipping_amt                  String,
+      handling_amt                  String,
+      wkst_id                       String,
+      consultant_id                 String,
+      cust_recpt_void_ret_ind       String,
+      cnty_tax_amt                  String,
+      lcl_tax_amt                   String,
+      st_tax_amt                    String,
+      oth_tax_amt                   String,
+      upload_trans_nr               String,
+      ship_to_id                    String,
+      additional_info_txt           String,
+      last_update                   String,
+      suspecious                    String,
+      suspecious_note               String,
+      cust_recpt_promotions_amt     String,
+      contact_object_id             String,
+      external_id                   String,
+      state_tax_percent             String,
+      county_tax_percent            String,
+      local_tax_percent             String,
+      other_tax_percent             String,
+      adw_lake_insert_datetime      datetime,
+      adw_lake_insert_batch_number  int64
+      ) PARTITION BY DATE(_PARTITIONTIME);

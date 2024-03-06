@@ -1,0 +1,29 @@
+database_source: mzp
+dataset_name: mzp
+table_name: territory
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 4
+target_dir: gs://adw-lake-mzp-{ENV}/territory/source/{{{{ ds }}}}
+
+query: >-
+  select
+       branch_ky
+        ,zip
+        ,last_upd_dt
+        ,SYSDATE as adw_lake_insert_datetime
+        ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_territory
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.territory` (
+    BRANCH_KY                       STRING,
+     ZIP                             STRING,
+     LAST_UPD_DT                     STRING,
+     adw_lake_insert_datetime        DATETIME,
+     adw_lake_insert_batch_number    INT64)
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;
+
+

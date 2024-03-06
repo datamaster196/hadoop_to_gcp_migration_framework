@@ -1,0 +1,61 @@
+database_source: pos
+dataset_name: pos
+table_name: cust_adr
+hwm_column: last_update
+split_by_column: last_update
+num_mappers: 6
+target_dir: gs://adw-lake-pos-{ENV}/cust_adr/source/{{{{ ds }}}}
+
+query: >-
+  select
+    assoc_cd String ,
+    clb_cd  ,
+    cust_id  ,
+    cust_adr_id  ,
+    cust_adr_cntry_id ,
+    cust_adr_cntry_cd ,
+    cust_adr_dmg_sg_id ,
+    cust_adr_end_dt  ,
+    cust_adr_oot_in ,
+    cust_adr_strt_dt  ,
+    cust_adr_st_prv_cd  ,
+    cust_adr_typ_id  ,
+    cust_adr_zip_cd  ,
+    cust_attn_ad ,
+    cust_bsc_ad  ,
+    cust_cty_nm  ,
+    cust_mail_adr_in ,
+    cust_supl_ad ,
+    stamp  ,
+    last_update  ,
+    CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.cust_adr
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.pos.cust_adr`(
+  	assoc_cd String ,
+  	clb_cd String ,
+  	cust_id String ,
+  	cust_adr_id String ,
+  	cust_adr_cntry_id String,
+  	cust_adr_cntry_cd String,
+  	cust_adr_dmg_sg_id String,
+  	cust_adr_end_dt String ,
+  	cust_adr_oot_in String,
+  	cust_adr_strt_dt String ,
+  	cust_adr_st_prv_cd String ,
+  	cust_adr_typ_id String ,
+  	cust_adr_zip_cd String ,
+  	cust_attn_ad String,
+  	cust_bsc_ad String ,
+  	cust_cty_nm String ,
+  	cust_mail_adr_in String,
+  	cust_supl_ad String,
+  	stamp String ,
+  	last_update String ,
+  	adw_lake_insert_datetime datetime ,
+  	adw_lake_insert_batch_number int64
+  ) PARTITION BY DATE(_PARTITIONTIME);

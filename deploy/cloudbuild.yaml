@@ -1,0 +1,43 @@
+steps:
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+
+
+    gsutil rm $_DAG_BUCKET/table_ingestion_configs/**
+    gsutil cp -r dags/ingest/table_ingestion_configs $_DAG_BUCKET
+
+    gsutil rm $_DAG_BUCKET/db_cluster_configs/**
+    gsutil cp -r dags/ingest/db_cluster_configs $_DAG_BUCKET
+
+    gsutil rm $_DAG_BUCKET/db_source_configs/**
+    gsutil cp -r dags/ingest/db_source_configs $_DAG_BUCKET
+
+    gsutil rm $_DAG_BUCKET/sql/**
+    gsutil cp -r dags/sql $_DAG_BUCKET
+
+    gsutil cp -r dags/OutBound/db_cluster_configs $_DAG_BUCKET
+
+    gsutil rm $_DAG_BUCKET/*.py
+
+    gsutil cp dags/ingest/*.py $_DAG_BUCKET
+    gsutil cp dags/integrate/*.py $_DAG_BUCKET
+    gsutil cp dags/misc/*.py $_DAG_BUCKET
+    gsutil cp dags/OutBound/*.py $_DAG_BUCKET
+    gsutil cp dags/datamart/*.py $_DAG_BUCKET
+
+    gsutil cp -r dags/utils/*.py $_DAG_BUCKET/utils
+
+    gsutil cp -r dags/data/*.avro $_DATA_BUCKET
+    touch __init__.py && gsutil cp __init__.py $_DAG_BUCKET
+
+substitutions:
+  _COMPOSER_BUCKET_PATH: default
+  _LOG_BUCKET_PATH: deafult
+  _DAG_BUCKET: default
+  _DATA_BUCKET: default
+
+logsBucket: 'gs://$_LOG_BUCKET_PATH/buildlogs'

@@ -1,0 +1,11 @@
+dataset_name: admin
+table_name: data_steward
+
+ddl: >-
+  create table if not exists `{INGESTION_PROJECT}.admin.data_steward` (
+  table_dataset STRING,
+  table_name STRING,
+  column_name STRING,
+  column_description STRING,
+  insert_datetime DATETIME NOT NULL
+  )

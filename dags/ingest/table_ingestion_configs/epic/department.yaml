@@ -1,0 +1,55 @@
+database_source: epic
+dataset_name: epic
+table_name: department 
+hwm_column: 
+split_by_column: UpdatedDate
+num_mappers: 1
+target_dir: gs://adw-lake-epic-{ENV}/department/source/{{{{ ds }}}}
+
+query: >-
+  select
+      UniqDepartment,
+      DepartmentCode,
+      NameOf,
+      InsertedByCode,
+      InsertedDate,
+      UpdatedByCode,
+      UpdatedDate,
+      Flags,
+      UniqMainAddress,
+      UniqMailingAddress,
+      UniqOrganizationPhone ,
+      UniqOrganizationFax,
+      UniqOrganizationEmail,
+      UniqOrganizationWebsite,
+      UniqOtherAddress,
+      UniqOrganizationSMS,
+      DepartmentID,
+      CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+      {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.department
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.department`
+  ( UniqDepartment                  String    ,
+    DepartmentCode                  String     ,
+    NameOf                          String    ,
+    InsertedByCode                  String    ,
+    InsertedDate                    String    ,
+    UpdatedByCode                   String    ,
+    UpdatedDate                     String    ,
+    Flags                           String    ,
+    UniqMainAddress                 String    ,
+    UniqMailingAddress              String    ,
+    UniqOrganizationPhone           String    ,
+    UniqOrganizationFax             String    ,
+    UniqOrganizationEmail           String    ,
+    UniqOrganizationWebsite         String    ,
+    UniqOtherAddress                String    ,
+    UniqOrganizationSMS             String    ,
+    DepartmentID                    String    ,
+    adw_lake_insert_datetime        datetime    ,
+    adw_lake_insert_batch_number    int64)
+  PARTITION BY DATE(_PARTITIONTIME); 

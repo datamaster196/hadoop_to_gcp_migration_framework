@@ -1,0 +1,18 @@
+database_source: sigma
+dataset_name: sigma
+table_name: aaa_ca_em_add_assoc
+hwm_column:
+split_by_column:
+num_mappers: 1
+target_dir:
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.sigma.aaa_ca_em_add_assoc` (
+    membershipid						STRING,
+    panel_code					STRING,
+    promo_code						    STRING,
+    adw_lake_insert_datetime        DATETIME,
+    adw_lake_insert_batch_number    INT64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

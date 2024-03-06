@@ -1,0 +1,36 @@
+database_source: mrm
+dataset_name: mrm
+table_name: phonenumbers
+hwm_column: change_time
+split_by_column: phonenumberid
+num_mappers: 3
+target_dir: gs://adw-lake-mrm-{ENV}/phonenumbers/source/{{{{ ds }}}}
+
+query: >-
+  select
+  phonenumberid,
+  customerid,
+  phnumber,
+  typecode,
+  extension,
+  customer_audit.change_time as change_time,
+  CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+  {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.phonenumbers
+     left outer join (
+      select  customer_id, max(change_time) as change_time
+      from [{db_name}].dbo.customer_audit  group by customer_id)customer_audit  
+    on customer_audit.customer_id=phonenumbers.customerid
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mrm.phonenumbers`(
+  phonenumberid    String,
+  customerid       String,
+  phnumber         String,
+  typecode         String,
+  extension        String,
+  change_time      STRING,
+  adw_lake_insert_datetime        datetime,
+  adw_lake_insert_batch_number    int64)
+  PARTITION BY DATE(_PARTITIONTIME);

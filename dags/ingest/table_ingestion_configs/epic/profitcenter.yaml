@@ -1,0 +1,40 @@
+database_source: epic
+dataset_name: epic
+table_name: profitcenter
+hwm_column: updateddate
+split_by_column: updateddate
+num_mappers: 6
+target_dir: gs://adw-lake-epic-{ENV}/profitcenter/source/{{{{ ds }}}}
+
+query: >-
+  select
+      uniqprofitcenter                ,
+      profitcentercode                 ,
+      nameof                          ,
+      insertedbycode                  ,
+      inserteddate                    ,
+      updatedbycode                   ,
+      updateddate                     ,
+      flags                           ,
+      profitcenterid                  ,
+      CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+      {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.profitcenter
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.profitcenter`
+  ( uniqprofitcenter                string,
+    profitcentercode                string ,
+    nameof                          string,
+    insertedbycode                  string,
+    inserteddate                    string,
+    updatedbycode                   string,
+    updateddate                     string,
+    flags                           string,
+    profitcenterid                  string,
+    adw_lake_insert_datetime        datetime    ,
+    adw_lake_insert_batch_number    int64 
+  )
+  PARTITION BY DATE(_PARTITIONTIME);

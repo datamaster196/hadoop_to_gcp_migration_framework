@@ -1,0 +1,30 @@
+database_source: mzp
+dataset_name: work
+table_name: stg_mzp_record_count_validation
+hwm_column:
+num_mappers: 1
+target_dir: gs://adw-lake-mzp-{ENV}/adw_record_count_validation/source/{{{{ ds }}}}
+
+query: >-
+  select owner,
+         table_name,
+         num_rows as record_count,
+         SYSDATE as adw_lake_insert_datetime,
+         {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from dba_tables
+  where $CONDITIONS
+
+
+
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.work.stg_mzp_record_count_validation` (
+    owner                             STRING,
+    table_name                        STRING,
+    record_count                      INT64,
+    adw_lake_insert_datetime          DATETIME,
+    adw_lake_insert_batch_number      INT64
+      )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

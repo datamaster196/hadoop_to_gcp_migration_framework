@@ -1,0 +1,10 @@
+dataset_name: admin
+table_name: ingestion_batch
+
+ddl: >-
+  create table if not exists `{INGESTION_PROJECT}.admin.ingestion_batch` (
+  batch_number INT64,
+  batch_status STRING,
+  batch_start_datetime STRING,
+  batch_end_datetime STRING
+  )

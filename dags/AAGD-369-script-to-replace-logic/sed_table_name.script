@@ -1,0 +1,12 @@
+s%car_care_location_number%car_care_loc_nbr%g
+s%primary_member_ind%prim_mbr_cd%g
+s%retail_sales_ofc_cd%retail_sales_office_cd%g
+s%aca_sales_ofc%aca_sales_office%g
+s%demo_channel_pref_i_decile%demo_channel_pref_i_dcil%g
+s%demo_channel_pref_d_decile%demo_channel_pref_d_dcil%g
+s%demo_channel_pref_e_decile%demo_channel_pref_e_dcil%g
+s%demo_life_attrin_mdl_decile%demo_life_attrin_mdl_dcil%g
+s%demo_prospect_survival_decile%demo_prospect_survival_dcil%g
+s%demo_life_class_decile%demo_life_class_dcil%g
+s%demo_premium_decile%demo_premium_dcil%g
+s%name_type_code%nm_typ_cd%g

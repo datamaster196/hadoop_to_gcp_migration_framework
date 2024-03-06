@@ -1,0 +1,37 @@
+database_source: mzp
+dataset_name: mzp
+table_name: membership_crossref
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/membership_crossref/source/{{{{ ds }}}}
+
+query: >-
+  select
+  crossrefky
+  , previous_club_cd
+  , club_cd
+  , previous_membership_id
+  , membership_id
+  , previous_membership_ky
+  , membership_ky
+  , last_upd_dt
+  , SYSDATE as adw_lake_insert_datetime
+  , {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_membership_crossref
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.membership_crossref` (
+    CROSSREFKY                      STRING         NOT NULL,
+     PREVIOUS_CLUB_CD                STRING,
+     CLUB_CD                         STRING,
+     PREVIOUS_MEMBERSHIP_ID          STRING,
+     MEMBERSHIP_ID                   STRING,
+     PREVIOUS_MEMBERSHIP_KY          STRING,
+     MEMBERSHIP_KY                   STRING,
+     LAST_UPD_DT                     STRING,
+     adw_lake_insert_datetime        DATETIME,
+     adw_lake_insert_batch_number    INT64)
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;

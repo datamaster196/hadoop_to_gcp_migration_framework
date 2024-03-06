@@ -1,0 +1,90 @@
+database_source: mrm
+dataset_name: mrm
+table_name: customers
+hwm_column: change_time
+split_by_column: customerid
+num_mappers: 3
+target_dir: gs://adw-lake-mrm-{ENV}/customers/source/{{{{ ds }}}}
+
+query: >-
+  select
+  customerid,
+  memberid,
+  firstname,
+  lastname,
+  middleinitial,
+  emailaddress,
+  gender,
+  maritalstatus,
+  travelagentuserid,
+  insagentuserid,
+  club_code,
+  assoc_code,
+  membershipstatus,
+  companyName,
+  autotravelagentuserid,
+  donotphone,
+  donotemail,
+  donotmail,
+  birthdate,
+  createtime,
+  dup_of_customerid,
+  createdbyuserid,
+  createmethod,
+  private_birthdate,
+  private_emailaddress,
+  emailtype,
+  preferred_contact,
+  namesuffix,
+  salutationcd,
+  contact_object_id,
+  emailvalidation,
+  emailvalidateddate,
+  customer_audit.change_time as change_time,
+  CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+  {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.customers customers
+  left outer join (
+      select  customer_id, max(change_time) as change_time
+      from [{db_name}].dbo.customer_audit  group by customer_id)customer_audit  
+    on customer_audit.customer_id=customers.customerid
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mrm.customers`(
+  customerid             String ,
+  memberid               String ,
+  firstname              String ,
+  lastname               String ,
+  middleinitial          String ,
+  emailaddress           String ,
+  gender                 String ,
+  maritalstatus          String ,
+  travelagentuserid      String ,
+  insagentuserid         String ,
+  club_code              String ,
+  assoc_code             String ,
+  membershipstatus       String ,
+  companyName            String ,
+  autotravelagentuserid  String ,
+  donotphone             String ,
+  donotemail             String ,
+  donotmail              String ,
+  birthdate              STRING ,
+  createtime             STRING ,
+  dup_of_customerid      String ,
+  createdbyuserid        String ,
+  createmethod           String ,
+  private_birthdate      String ,
+  private_emailaddress   String ,
+  emailtype              String ,
+  preferred_contact      String ,
+  namesuffix             String ,
+  salutationcd           String ,
+  contact_object_id      String ,
+  emailvalidation        String ,
+  emailvalidateddate     STRING,
+  change_time                   STRING ,
+  adw_lake_insert_datetime        datetime,
+  adw_lake_insert_batch_number    int64 )
+  PARTITION BY DATE(_PARTITIONTIME);

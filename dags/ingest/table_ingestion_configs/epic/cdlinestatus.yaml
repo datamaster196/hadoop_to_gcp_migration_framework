@@ -1,0 +1,35 @@
+database_source: epic
+dataset_name: epic
+table_name: cdlinestatus
+hwm_column: 
+split_by_column: uniqcdlinestatus
+num_mappers: 6
+target_dir: gs://adw-lake-epic-{ENV}/cdlinestatus/source/{{{{ ds }}}}
+
+query: >-
+  select
+  uniqcdlinestatus                 ,
+  cdlinestatuscode                  ,
+  flags                            ,
+  uniqglaccountabillincome         ,
+  uniqglaccountdbillincome         ,
+  configurelklanguageresourceid    ,
+  CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+  {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.cdlinestatus
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.cdlinestatus`
+  ( 
+    uniqcdlinestatus                 string,
+    cdlinestatuscode                 string ,
+    flags                            string,
+    uniqglaccountabillincome         string,
+    uniqglaccountdbillincome         string,
+    configurelklanguageresourceid    string,
+    adw_lake_insert_datetime         datetime    ,
+    adw_lake_insert_batch_number     int64 
+  )
+  PARTITION BY DATE(_PARTITIONTIME);

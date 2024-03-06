@@ -1,0 +1,59 @@
+database_source: mzp
+dataset_name: mzp
+table_name: discount_history
+hwm_column: last_upd_dt
+split_by_column:  to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 4
+target_dir: gs://adw-lake-mzp-{ENV}/discount_history/source/{{{{ ds }}}}
+
+query: >-
+  select
+    discount_history_ky    
+    ,discount_ky
+    ,member_ky  
+    ,rider_ky   
+    ,amount     
+    ,counted_fl 
+    ,effective_dt
+    ,cost_effective_dt
+    ,sustainable_fl   
+    ,discount_cd      
+    ,membership_ky    
+    ,parent_discount_history_ky 
+    ,original_at        
+    ,discontinued_fl    
+    ,membership_fees_ky  
+    ,payment_method_cd   
+    ,last_upd_dt         
+    ,applied_at_renewal  
+    ,SYSDATE as adw_lake_insert_datetime
+    ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_discount_history
+    where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.discount_history` (
+    DISCOUNT_HISTORY_KY             STRING,
+    DISCOUNT_KY                     STRING,
+    MEMBER_KY                       STRING,
+    RIDER_KY                        STRING,
+    AMOUNT                          STRING,
+    COUNTED_FL                      STRING,
+    DISC_EFFECTIVE_DT               STRING,
+    COST_EFFECTIVE_DT               STRING,
+    SUSTAINABLE_FL                  STRING,
+    DISCOUNT_CD                     STRING,
+    MEMBERSHIP_KY                   STRING,
+    PARENT_DISCOUNT_HISTORY_KY      STRING,
+    ORIGINAL_AT                     STRING,
+    DISCONTINUED_FL                 STRING,
+    MEMBERSHIP_FEES_KY              STRING,
+    PAYMENT_METHOD_CD               STRING,
+    LAST_UPD_DT                     STRING,
+    APPLIED_AT_RENEWAL              STRING,
+    adw_lake_insert_datetime        DATETIME,
+    adw_lake_insert_batch_number    INT64)
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;
+

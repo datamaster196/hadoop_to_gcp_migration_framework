@@ -1,0 +1,34 @@
+database_source: epic
+dataset_name: epic
+table_name: entityemployeejt
+hwm_column: 
+split_by_column: UniqEntity
+num_mappers: 6
+target_dir: gs://adw-lake-epic-{ENV}/entityemployeejt/source/{{{{ ds }}}}
+
+query: >-
+  select
+      uniqentity                         ,
+      uniqcdservicingrole                ,
+      uniqemployee                       ,
+      roledescription                    ,
+      updatedbyprocess                ,
+      insertedbyprocess               ,
+      CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+      {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.entityemployeejt
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.entityemployeejt`
+  ( uniqentity                      string   ,
+    uniqcdservicingrole             string   ,
+    uniqemployee                    string   ,
+    roledescription                 string   ,
+    updatedbyprocess                string,
+    insertedbyprocess               string,
+    adw_lake_insert_datetime        datetime       ,
+    adw_lake_insert_batch_number    int64    
+  )
+  PARTITION BY DATE(_PARTITIONTIME);

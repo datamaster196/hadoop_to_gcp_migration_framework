@@ -1,0 +1,60 @@
+database_source: mzp
+dataset_name: mzp
+table_name: autorenewal_card
+hwm_column: 
+split_by_column: autorenewal_card_ky
+num_mappers: 6
+target_dir: gs://adw-lake-mzp-{ENV}/autorenewal_card/source/{{{{ ds }}}}
+
+query: >-
+  select
+      autorenewal_card_ky             ,
+      status                          ,
+      status_dt                       ,
+      cc_type_cd                      ,
+      cc_expiration_dt                ,
+      cc_first_name                   ,
+      cc_last_name                    ,
+      cc_street                       ,
+      REPLACE(REPLACE(REPLACE(cc_city, CHR(10)), CHR(13)), CHR(124)) AS cc_city,
+      cc_state                        ,
+      cc_zip                          ,
+      cc_reject_reason_cd             ,
+      cc_reject_dt                    ,
+      donor_nr                        ,
+      unassociated_days               ,
+      cc_name_on_card                 ,
+      cc_last_four                    ,
+      credit_debit_type               ,
+      SYSDATE as adw_lake_insert_datetime,
+      {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_autorenewal_card
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.autorenewal_card` (
+  AUTORENEWAL_CARD_KY             STRING         NOT NULL,
+  STATUS                          STRING,
+  STATUS_DT                       STRING,
+  CC_TYPE_CD                      STRING,
+  CC_EXPIRATION_DT                STRING,
+  CC_FIRST_NAME                   STRING,
+  CC_LAST_NAME                    STRING,
+  CC_STREET                       STRING,
+  CC_CITY                         STRING,
+  CC_STATE                        STRING,
+  CC_ZIP                          STRING,
+  CC_REJECT_REASON_CD             STRING,
+  CC_REJECT_DT                    STRING,
+  DONOR_NR                        STRING,
+  UNASSOCIATED_DAYS               STRING,
+  CC_NAME_ON_CARD                 STRING,
+  CC_LAST_FOUR                    STRING,
+  CREDIT_DEBIT_TYPE               STRING,
+  adw_lake_insert_datetime        DATETIME,
+  adw_lake_insert_batch_number    INT64
+      )
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;
+
+

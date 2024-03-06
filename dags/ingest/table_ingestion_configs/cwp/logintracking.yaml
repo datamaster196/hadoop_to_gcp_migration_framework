@@ -1,0 +1,36 @@
+database_source: cwp
+dataset_name: cwp
+table_name: logintracking
+hwm_column: loginDate
+split_by_column: loginDate
+num_mappers: 6
+target_dir: gs://adw-lake-cwp-{ENV}/logintracking/source/{{{{ ds }}}}
+
+
+query: >-
+  select
+         [id]
+        ,[fk_profile_id]
+        ,[loginDate]
+        ,[sessionToken]
+        ,[source]
+        ,[status]
+        ,CURRENT_TIMESTAMP as adw_lake_insert_datetime
+        ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].web_profile.logintracking
+  where  $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.cwp.logintracking` (
+    id                               STRING,
+    fk_profile_id                    STRING,
+    loginDate                        STRING,
+    sessionToken                     STRING,
+    source                           STRING,
+    status                           STRING,
+    adw_lake_insert_datetime         datetime,
+    adw_lake_insert_batch_number     int64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

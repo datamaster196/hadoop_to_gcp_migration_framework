@@ -1,0 +1,54 @@
+database_source: sfmc
+dataset_name: sfmc
+table_name: click
+hwm_column:
+split_by_column: EventDate
+num_mappers: 8
+target_dir: gs://adw-lake-eds-sfmc-{ENV}/click_hist/source/{{{{ ds }}}}
+
+
+query: >-
+  select
+  AccountID
+  ,OYBAccountID
+  ,JobID
+  ,ListID
+  ,BatchID
+  ,SubscriberID
+  ,SubscriberKey
+  ,EventDate
+  ,Domain
+  ,replace(replace(replace(LinkName,CHAR(124),CHAR(32)),char(10),char(32)),char(13),char(32)) as URL
+  ,replace(replace(replace(LinkName,CHAR(124),CHAR(32)),char(10),char(32)),char(13),char(32)) as LinkName
+  ,replace(replace(replace(LinkContent,CHAR(124),CHAR(32)),char(10),char(32)),char(13),char(32)) as LinkContent
+  ,IsUnique
+  ,TriggeredSendCustomerKey
+  ,TriggererSendDefinitionObjectID
+  ,CURRENT_TIMESTAMP as adw_lake_insert_datetime
+  ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.eds_et_click
+  where active_indic = CHAR(121) and EventDate >= '"'01/01/2018'"' and $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.sfmc.click` (
+    accountid						STRING,
+    oybaccountid					STRING,
+    jobid						    STRING,
+    listid							STRING,
+    batchid							STRING,
+    subscriberid					STRING,
+    subscriberkey					STRING,
+    eventdate				        STRING,
+    domain							STRING,
+    url							    STRING,
+    linkname					    STRING,
+    linkcontent						STRING,
+    isunique						STRING,
+    triggeredsendcustomerkey		STRING,
+    triggerersenddefinitionobjectid	STRING,
+    adw_lake_insert_datetime        DATETIME,
+    adw_lake_insert_batch_number    INT64
+    )
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;

@@ -1,0 +1,79 @@
+database_source: d3
+dataset_name: d3
+table_name: service_provided
+hwm_column: sc_dt
+split_by_column: to_number(to_char(sc_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 6
+target_dir: gs://adw-lake-d3-{ENV}/service_provided/source/{{{{ ds }}}}
+
+query: >-
+  SELECT
+      svcp_id           ,
+      comm_ctr_id       ,
+      sc_dt             ,
+      sc_id             ,
+      svcp_pay_id      ,
+      svcp_cd          ,
+      svcp_units       ,
+      svcp_unit_cost   ,
+      svcp_uom_cd      ,
+      svcp_add_chrg    ,
+      svcp_basic_cost  ,
+      svcp_other_cost  ,
+      svcp_plus_cost   ,
+      svcp_adj_cost    ,
+      svcp_tot_cost    ,
+      svcp_disp_app    ,
+      emple_id         ,
+      svcp_disp_price  ,
+      svcp_tier_status ,
+      svcp_ratec_cd    ,
+      svcp_tod_cd      ,
+      sc_prob_cd       ,
+      except_flag      ,
+      svcp_plusrv_cost ,
+      svcp_tax1        ,
+      svcp_tax2        ,
+      svcp_prem_cost   ,
+      svcp_prrv_cost   ,
+      SYSDATE as adw_lake_insert_datetime,
+      {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  FROM
+     aca_ers_hist.SERVICE_PROVIDED
+  WHERE
+    $CONDITIONS
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.d3.service_provided` (
+      svcp_id          string not null,
+        comm_ctr_id      string not null,
+        sc_dt            string not null,
+        sc_id            string not null,
+        svcp_pay_id      string,
+        svcp_cd          string,
+        svcp_units       string,
+        svcp_unit_cost   string,
+        svcp_uom_cd      string,
+        svcp_add_chrg    string,
+        svcp_basic_cost  string,
+        svcp_other_cost  string,
+        svcp_plus_cost   string,
+        svcp_adj_cost    string,
+        svcp_tot_cost    string,
+        svcp_disp_app    string,
+        emple_id         string,
+        svcp_disp_price  string,
+        svcp_tier_status string,
+        svcp_ratec_cd    string,
+        svcp_tod_cd      string,
+        sc_prob_cd       string,
+        except_flag      string,
+        svcp_plusrv_cost string,
+        svcp_tax1        string,
+        svcp_tax2        string,
+        svcp_prem_cost   string,
+        svcp_prrv_cost   string,
+        adw_lake_insert_datetime     datetime,
+        adw_lake_insert_batch_number int64
+    )
+    PARTITION BY DATE(_PARTITIONTIME)
+    ;

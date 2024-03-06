@@ -1,0 +1,34 @@
+database_source: epic
+dataset_name: epic
+table_name: securityuser
+hwm_column:
+split_by_column: UniqSecurityUser
+num_mappers: 1
+target_dir: gs://adw-lake-epic-{ENV}/securityuser/source/{{{{ ds }}}}
+
+query: >-
+  select
+      UniqSecurityUser  ,
+      REPLACE(REPLACE(REPLACE(UserCode, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as UserCode          ,
+      REPLACE(REPLACE(REPLACE(FullName, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as FullName          ,
+      REPLACE(REPLACE(REPLACE(TypeCode, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as TypeCode          ,
+      UniqEmployee,
+      REPLACE(REPLACE(REPLACE(Flags, CHAR(10), CHAR(32)), CHAR(13), CHAR(32)), CHAR(124), CHAR(32)) as Flags             ,
+      CURRENT_TIMESTAMP as adw_lake_insert_datetime,
+      {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from [{db_name}].dbo.SecurityUser
+  where $CONDITIONS
+
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.epic.securityuser`
+  ( UniqSecurityUser                  string    ,
+    UserCode                          string    ,
+    FullName                          string    ,
+    TypeCode                          string    ,
+    UniqEmployee                      string    ,
+    Flags                             string    ,
+    adw_lake_insert_datetime          datetime  ,
+    adw_lake_insert_batch_number      int64   
+  )
+  PARTITION BY DATE(_PARTITIONTIME);

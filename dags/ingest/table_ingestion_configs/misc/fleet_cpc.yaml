@@ -1,0 +1,20 @@
+database_source: misc
+dataset_name: misc
+table_name: fleet_cpc
+hwm_column:
+split_by_column:
+num_mappers: 1
+target_dir:
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.misc.fleet_cpc` (
+    Year        INT64 NOT NULL,
+    Month       INT64 NOT NULL,
+    FacilityID  STRING NOT NULL,
+    CPC         NUMERIC NOT NULL,
+    Location    STRING NOT NULL,
+    Factor		NUMERIC NOT NULL,
+    adw_lake_insert_datetime	DATETIME NOT NULL,
+    adw_lake_batch_number		INT64 NOT NULL
+  )
+  ;

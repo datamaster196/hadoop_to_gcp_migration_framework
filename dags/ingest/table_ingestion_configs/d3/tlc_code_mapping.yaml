@@ -1,0 +1,35 @@
+database_source: d3
+dataset_name: d3
+table_name: tlc_code_mapping
+hwm_column: 
+split_by_column: 
+num_mappers: 1
+target_dir: gs://adw-lake-d3-{ENV}/tlc_code_mapping/source/{{{{ ds }}}}
+
+query: >-
+  SELECT
+    ID,
+    TYPE,
+    TLC_CODE,
+    CODE,
+    TLC_DESC,
+    MDC_CODE,
+    SYSDATE as adw_lake_insert_datetime,
+    {{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  FROM
+    ACA_CAD.TLC_CODE_MAPPING 
+  WHERE
+    $CONDITIONS
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.d3.tlc_code_mapping` (
+      ID                           String,
+      TYPE                         String,
+      TLC_CODE                     String,
+      CODE                         String,
+      TLC_DESC                     String,
+      MDC_CODE                     String,
+      adw_lake_insert_datetime     datetime,
+      adw_lake_insert_batch_number int64 
+    )
+    PARTITION BY DATE(_PARTITIONTIME)
+    ;

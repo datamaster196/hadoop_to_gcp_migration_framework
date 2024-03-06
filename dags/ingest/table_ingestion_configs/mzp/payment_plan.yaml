@@ -1,0 +1,42 @@
+database_source: mzp
+dataset_name: mzp
+table_name: payment_plan
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 1
+target_dir: gs://adw-lake-mzp-{ENV}/payment_plan/source/{{{{ ds }}}}
+
+query: >-
+  select
+       payment_plan_ky
+      ,plan_name
+      ,number_of_payments
+      ,plan_length
+      ,status
+      ,last_upd_dt
+      ,perpetual_fl
+      ,convenience_fl
+      ,convenience_at
+      ,minimum_at
+      ,SYSDATE as adw_lake_insert_datetime
+      ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_payment_plan
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.payment_plan` (
+    PAYMENT_PLAN_KY                 STRING,
+      PLAN_NAME                       STRING,
+      NUMBER_OF_PAYMENTS              STRING,
+      PLAN_LENGTH                     STRING,
+      STATUS                          STRING,
+      LAST_UPD_DT                     STRING,
+      PERPETUAL_FL                    STRING,
+      CONVENIENCE_FL                  STRING,
+      CONVENIENCE_AT                  STRING,
+      MINIMUM_AT                      STRING,
+      adw_lake_insert_datetime        DATETIME,
+      adw_lake_insert_batch_number    INT64)
+    PARTITION BY DATE(_PARTITIONTIME)
+  ;
+

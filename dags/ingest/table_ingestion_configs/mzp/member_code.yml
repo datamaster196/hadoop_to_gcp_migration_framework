@@ -1,0 +1,30 @@
+database_source: mzp
+dataset_name: mzp
+table_name: member_code
+hwm_column: last_upd_dt
+split_by_column: to_number(to_char(last_upd_dt ,'"'"'yyyymmddhh24miss'"'"'))
+num_mappers: 4
+target_dir: gs://adw-lake-mzp-{ENV}/member_code/source/{{{{ ds }}}}
+
+query: >-
+  select
+        member_ky
+        ,code,user_id
+        ,last_upd_dt
+        ,member_code_ky
+        ,SYSDATE as adw_lake_insert_datetime
+        ,{{{{ dag_run.id }}}} as adw_lake_insert_batch_number
+  from mz_plus_212.mz_member_code
+  where $CONDITIONS
+
+ddl: >-
+  CREATE TABLE IF NOT EXISTS `{INGESTION_PROJECT}.mzp.member_code` (
+     MEMBER_KY                       STRING,
+     CODE                            STRING,
+     USER_ID                         STRING,
+     LAST_UPD_DT                     STRING,
+     MEMBER_CODE_KY                  STRING,
+     adw_lake_insert_datetime        DATETIME,
+     adw_lake_insert_batch_number    INT64)
+  PARTITION BY DATE(_PARTITIONTIME)
+  ;
